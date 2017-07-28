@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+	<display-name>Symusic</display-name>
+	<servlet>
+		<display-name>InitServlet</display-name>
+		<servlet-name>InitServlet</servlet-name>
+		<servlet-class>it.fivano.symusic.action.InitServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<display-name>ZeroDayMusicServlet</display-name>
+		<servlet-name>ZeroDayMusicServlet</servlet-name>
+		<servlet-class>it.fivano.symusic.action.ZeroDayMusicServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<display-name>RatingServlet</display-name>
+		<servlet-name>RatingServlet</servlet-name>
+		<servlet-class>it.fivano.symusic.action.RatingServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<display-name>FlagReleaseServlet</display-name>
+		<servlet-name>FlagReleaseServlet</servlet-name>
+		<servlet-class>it.fivano.symusic.action.FlagReleaseServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<display-name>ReleaseDeleteServlet</display-name>
+		<servlet-name>ReleaseDeleteServlet</servlet-name>
+		<servlet-class>it.fivano.symusic.action.ReleaseDeleteServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<display-name>ScenelogServlet</display-name>
+		<servlet-name>ScenelogServlet</servlet-name>
+		<servlet-class>it.fivano.symusic.action.ScenelogServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<display-name>BeatportServlet</display-name>
+		<servlet-name>BeatportServlet</servlet-name>
+		<servlet-class>it.fivano.symusic.action.BeatportServlet</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<display-name>LocalReleaseServlet</display-name>
+		<servlet-name>LocalReleaseServlet</servlet-name>
+		<servlet-class>it.fivano.symusic.action.LocalReleaseServlet</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<display-name>LastReleaseDateServlet</display-name>
+		<servlet-name>LastReleaseDateServlet</servlet-name>
+		<servlet-class>it.fivano.symusic.action.LastReleaseDateServlet</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<display-name>EuroadrenalineServlet</display-name>
+		<servlet-name>EuroadrenalineServlet</servlet-name>
+		<servlet-class>it.fivano.symusic.action.EuroadrenalineServlet</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<display-name>LinkServlet</display-name>
+		<servlet-name>LinkServlet</servlet-name>
+		<servlet-class>it.fivano.symusic.action.LinkServlet</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>InitServlet</servlet-name>
+		<url-pattern>/InitServlet</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ZeroDayMusicServlet</servlet-name>
+		<url-pattern>/ZeroDayMusicServlet</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>RatingServlet</servlet-name>
+		<url-pattern>/RatingServlet</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>FlagReleaseServlet</servlet-name>
+		<url-pattern>/FlagReleaseServlet</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ReleaseDeleteServlet</servlet-name>
+		<url-pattern>/ReleaseDeleteServlet</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ScenelogServlet</servlet-name>
+		<url-pattern>/ScenelogServlet</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>BeatportServlet</servlet-name>
+		<url-pattern>/BeatportServlet</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>LocalReleaseServlet</servlet-name>
+		<url-pattern>/LocalReleaseServlet</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>LastReleaseDateServlet</servlet-name>
+		<url-pattern>/LastReleaseDateServlet</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>EuroadrenalineServlet</servlet-name>
+		<url-pattern>/EuroadrenalineServlet</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>LinkServlet</servlet-name>
+		<url-pattern>/LinkServlet</url-pattern>
+	</servlet-mapping>
+
+	<welcome-file-list>
+		<welcome-file>InitServlet</welcome-file>
+	</welcome-file-list>
+</web-app>

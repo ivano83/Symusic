@@ -1,0 +1,68 @@
+package it.fivano.symusic.core.parser.model;
+
+import it.fivano.symusic.model.GenreModel;
+import it.fivano.symusic.model.LinkModel;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class ZeroDayMp3ParserModel {
+	
+	private String releaseName;
+	private Date releaseDate;
+	private GenreModel releaseGenre;
+	private LinkModel releaseLink;
+	
+	private boolean radioRip;
+	private boolean dateInRange;
+	
+	
+	public String getReleaseName() {
+		return releaseName;
+	}
+	public void setReleaseName(String releaseName) {
+		this.releaseName = releaseName;
+	}
+
+	public Date getReleaseDate() {
+		return releaseDate;
+	}
+	public void setReleaseDate(Date releaseDate) {
+		this.releaseDate = releaseDate;
+	}
+	public boolean isRadioRip() {
+		return radioRip;
+	}
+	public void setRadioRip(boolean radioRip) {
+		this.radioRip = radioRip;
+	}
+	public boolean isDateInRange() {
+		return dateInRange;
+	}
+	public void setDateInRange(boolean dateInRange) {
+		this.dateInRange = dateInRange;
+	}
+	
+	
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		return releaseName+" ["+sdf.format(releaseDate)+"] "+((radioRip)?"[isRadioRip] ":"")+((dateInRange)?"[dataInRange] ":"");
+	}
+
+	public LinkModel getReleaseLink() {
+		return releaseLink;
+	}
+	public void setReleaseLink(LinkModel releaseLink) {
+		this.releaseLink = releaseLink;
+	}
+	public GenreModel getReleaseGenre() {
+		return releaseGenre;
+	}
+	public void setReleaseGenre(GenreModel releaseGenre) {
+		this.releaseGenre = releaseGenre;
+	}
+
+
+}

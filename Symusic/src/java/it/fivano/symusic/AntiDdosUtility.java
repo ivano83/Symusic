@@ -178,7 +178,8 @@ public class AntiDdosUtility {
 
 	public boolean isAntiDDOS(Document doc) {
 		Elements res = doc.getElementsByClass("cf-browser-verification");
-		log.info("DDOS protection: "+(res.size()==0 ? false : true));
+		if(res.size()!=0)
+			log.info("DDOS protection: true");
 		return res.size()==0 ? false : true;
 	}
 

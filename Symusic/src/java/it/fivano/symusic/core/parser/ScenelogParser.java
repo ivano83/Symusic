@@ -345,12 +345,19 @@ public class ScenelogParser extends GenericParser {
 
 	public static void main(String[] args) throws IOException, ParseReleaseException {
 		ScenelogParser p = new ScenelogParser();
-		System.setProperty("https.proxyHost", "10.55.32.23");
-		System.setProperty("https.proxyPort", "80");
-		BaseReleaseParserModel m = p.parseFullPage("https://scnlog.eu/music/").get(0);
-		ReleaseModel mm = p.parseReleaseDetails(m, null);
+		//System.setProperty("https.proxyHost", "10.55.32.23");
+		//System.setProperty("https.proxyPort", "80");
+		//BaseReleaseParserModel m = p.parseFullPage("https://scnlog.eu/music/").get(0);
+		//ReleaseModel mm = p.parseReleaseDetails(m, null);
 
-		System.out.println(mm);
+		String t = "gabry feat ciccio-bello (remix)";
+		t = t.replaceAll("[-,!?&']", " ").replace(" feat. ", " ").replace(" ft ", " ").replace(" featuring ", " ")
+				.replace(" presents ", " ").replace(" pres ", " ").replace(" pres. ", " ")
+				.replace("  ", " ").replace(" and ", " ").replace(" ", "+");
+		if(t.indexOf("(")!=-1) {
+			t = t.substring(0,t.indexOf("("));
+		}
+		System.out.println(t);
 	}
 
 

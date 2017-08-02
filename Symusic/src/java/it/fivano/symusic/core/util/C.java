@@ -9,7 +9,9 @@ public class C {
 	public static String REL_DATE = "ReleaseDate";
 	public static String ARTIST = "Artist";
 	public static String SONG = "Song";
-	
+
 	public static String SEARCH_BY_NAME = "Name";
 	public static String SEARCH_BY_CREW = "Crew";
+	public static String SEARCH_BY_GENRE = "Genre";
+	public static String SEARCH_BY_RELEASE_NAME = "ReleaseName";
 }

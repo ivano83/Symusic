@@ -17,14 +17,14 @@ import it.fivano.symusic.model.LinkModel;
 public class BaseParser {
 
 	protected MyLogger log;
-	
+
 	protected static final int TIMEOUT = 9000;
 	protected AntiDdosUtility antiDDOS;
-	
+
 	protected Properties props;
 	protected String site;
 	protected Map<String,Integer> qualityMap;
-	
+
 	public BaseParser() {
 		try {
 			antiDDOS = new AntiDdosUtility();
@@ -32,21 +32,21 @@ public class BaseParser {
 			e.printStackTrace();
 		}
 	}
-	
+
 	protected Object runRole(Element inputElement, String routingReleaseName) throws Exception {
-		
+
 		if(routingReleaseName==null)
 			return null;
-		
+
 		String[] regole = routingReleaseName.split("\\|\\|");
-		
+
 		Elements tmp = new Elements(inputElement);
 		String regola = null;
 		Object valore = null;
 		for(int i=0; i<regole.length; i++) {
 			if(tmp==null)
 				throw new Exception("La regola "+regola+" non ha prodotto alcun risultato");
-			
+
 			regola = regole[i].trim();
 			if(regola.contains("get=")) {
 				tmp = new Elements(tmp.get(Integer.parseInt(regola.replace("get=", "").trim())));
@@ -78,46 +78,44 @@ public class BaseParser {
 			} else {
 				tmp = tmp.select(regola);
 			}
-			
-			
+
+
 		}
-		
+
 		// senza il recupero di un valore, viene presa la lista degli elementi correnti
 		if(tmp!=null && !tmp.isEmpty() && valore==null)
 			valore = tmp;
-		
-		
+
+
 		return valore;
 	}
-	
+
 	protected String formatSearchValue(String val, String flow) {
 		if(flow==null)
 			return val;
-		
+
 		String[] regole = flow.split("\\|\\|");
-		
+
 		String regola = null;
 		String valore = val;
 		for(int i=0; i<regole.length; i++) {
 			regola = regole[i].trim();
-			
+
 			if(regola.contains("replaceAll=")) {
 				String[] regSplit = regola.replace("replaceAll=", "").split("\\(");
-				valore = valore.replaceAll(regSplit[0].trim(),regSplit[1].replace(")", "").trim());
-				
+				valore = valore.replaceAll(regSplit[0],regSplit[1].replace(")", ""));
+
 			} else if(regola.contains("replace=")) {
 				String[] regSplit = regola.replace("replace=", "").split("\\(");
-				valore = valore.replace(regSplit[0].trim(),regSplit[1].replace(")", "").trim());
-				
-				
+				valore = valore.replace(regSplit[0],regSplit[1].replace(")", ""));
+
 			}
-			
 		}
-		
-		return val;
-		
+
+		return valore;
+
 	}
-	
+
 	protected LinkModel popolateLink(Element dl) {
 		LinkModel currLink = new LinkModel();
 		currLink.setLink(dl.attr("href"));
@@ -125,7 +123,7 @@ public class BaseParser {
 
 		return currLink;
 	}
-	
+
 	protected Document bypassAntiDDOS(Document doc, String baseUrl, String urlToRedirect, String userAgent) throws Exception {
 
 //		String url = this.getBypassUrlOld(doc,baseUrl);
@@ -143,11 +141,11 @@ public class BaseParser {
 
 		return doc;
 	}
-	
+
 	protected void setLogger(Class<?> classe) {
 		log = new MyLogger(classe);
 	}
-	
+
 	protected void setProps(Properties props2) {
 		this.props = props2;
 		this.site = props.getProperty("site");
@@ -156,14 +154,14 @@ public class BaseParser {
 			qualityMap.put(tmp.split("=")[0].trim(), Integer.parseInt(tmp.split("=")[1].trim()));
 		}
 	}
-	
-	
+
+
 	protected Integer quality(String name) {
 		if(qualityMap.containsKey(name))
 			return qualityMap.get(name);
 		else
 			return 5; // defualt
 	}
-	
-	
+
+
 }

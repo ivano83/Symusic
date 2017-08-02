@@ -1,7 +1,7 @@
 package it.fivano.symusic.model;
 
 public class LinkModel {
-	
+
 	private String name;
 	private String link;
 	private String serverLink;
@@ -26,10 +26,15 @@ public class LinkModel {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		return this.getLink().equals(((LinkModel)obj).getLink());
+	}
+
+	@Override
+	public String toString() {
+		return link;
 	}
 
 }

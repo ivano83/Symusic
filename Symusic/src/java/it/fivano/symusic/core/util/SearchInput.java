@@ -4,13 +4,15 @@ import java.util.Date;
 
 public class SearchInput {
 
-	
+
 	private Date dataDa;
 	private Date dataA;
 	private String genre;
 	private String crew;
+	private String name;
 	private boolean excludeRadioRip;
-	
+	private String searchType;
+
 	public Date getDataDa() {
 		return dataDa;
 	}
@@ -41,6 +43,18 @@ public class SearchInput {
 	public void setExcludeRadioRip(boolean excludeRadioRip) {
 		this.excludeRadioRip = excludeRadioRip;
 	}
-	
-	
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getSearchType() {
+		return searchType;
+	}
+	public void setSearchType(String searchType) {
+		this.searchType = searchType;
+	}
+
+
 }

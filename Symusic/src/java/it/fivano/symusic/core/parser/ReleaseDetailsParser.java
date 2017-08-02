@@ -5,6 +5,7 @@ import it.fivano.symusic.core.parser.model.BaseReleaseParserModel;
 import it.fivano.symusic.core.util.C;
 import it.fivano.symusic.core.util.UserAgent;
 import it.fivano.symusic.model.GenreModel;
+import it.fivano.symusic.model.LinkModel;
 import it.fivano.symusic.model.ReleaseModel;
 import it.fivano.symusic.model.TrackModel;
 
@@ -21,21 +22,20 @@ import org.jsoup.select.Elements;
 
 public class ReleaseDetailsParser extends BaseParser {
 
-	
-	public ReleaseDetailsParser() {
+
+	public ReleaseDetailsParser(Properties props) {
 		super();
 		try {
 			this.setLogger(getClass());
+			this.setProps(props);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
-	
-	public boolean parseReleaseDetails(Properties props, BaseReleaseParserModel searchModel, ReleaseModel release) throws Exception {
 
-		this.setProps(props);
-		
+
+	public boolean releaseDetails(BaseReleaseParserModel searchModel, ReleaseModel release) throws Exception {
+
 		Document doc = null;
 		try {
 
@@ -44,10 +44,10 @@ public class ReleaseDetailsParser extends BaseParser {
 
 			// SE RELEASE ANCORA NON PRESENTE SI CREA L'OGGETTO
 			if(release==null)
-				release = new ReleaseModel();
-			
+				throw new Exception("Bisogna inizializzare l'oggetto ReleaseModel");
+
 			release = this.popolaRelease(release, searchModel);
-			
+
 			if(searchModel.getUrlReleaseDetails()!=null) {
 				// INVOCARE DIRETTAMENTE LA URL ED ESTRARRE I DATI
 				log.info(String.format("[%s] \t connecting to: %s ",site,searchModel.getUrlReleaseDetails()));
@@ -57,27 +57,15 @@ public class ReleaseDetailsParser extends BaseParser {
 				if(antiDDOS.isAntiDDOS(doc)) {
 					doc = this.bypassAntiDDOS(doc, props.getProperty("base_url"), searchModel.getUrlReleaseDetails(), userAgent);
 				}
-				
-			} else if(props.getProperty("release_search_by"+searchModel.getSearchBy())!=null) {
-				String searchUrl = null;
-				if(C.SEARCH_BY_NAME.equals(searchModel.getSearchBy()) && searchModel.getReleaseName()!=null) {
-					searchUrl = String.format(props.getProperty("release_search_by"+searchModel.getSearchBy()), searchModel.getReleaseName());
-				} else if(C.SEARCH_BY_CREW.equals(searchModel.getSearchBy())) {
-					searchUrl = String.format(props.getProperty("release_search_by"+searchModel.getSearchBy()), searchModel.getSearchValue());
-				} else {
-					String msg = "La ricerca per '"+searchModel.getSearchBy()+"' non è gestita!";
-					log.error(msg);
-					throw new Exception(msg);
-				}
-				// ESEGUIRE LA RICERCA USANDO IL NOME RELEASE
-				String s = searchModel.getSearchString()!=null ? searchModel.getSearchString() : searchModel.getReleaseName();
-				// TODO
-			} else {
-				
-			}
-			
 
-			
+			} else {
+				String msg = "Nessuna URL release definita... impossibile recupere i dettagli! ";
+				log.error(msg);
+				throw new Exception(msg);
+			}
+
+
+
 			// genere
 			if(props.getProperty("release_genre")!=null && release.qualitaDatiMigliore(C.GENRE, quality(C.GENRE))) {
 					GenreModel genre = new GenreModel();
@@ -89,9 +77,9 @@ public class ReleaseDetailsParser extends BaseParser {
 			// tracks
 			if(props.getProperty("release_loop_tracks")!=null) {
 				Elements tracks = (Elements)this.runRole(doc, props.getProperty("release_loop_tracks"));
-				
+
 				List<TrackModel> tracksList = new ArrayList<TrackModel>();
-				
+
 				TrackModel currTrack = null;
 				int numTr = 1;
 
@@ -103,33 +91,33 @@ public class ReleaseDetailsParser extends BaseParser {
 					String text = (String)this.runRole(track, props.getProperty("release_track_name"));
 					text = text.replaceFirst("\\d+\\.",""); // se c'e' il numero di track, lo elimina
 					currTrack.setTrackName(text);
-					
+
 					tracksList.add(currTrack);
 					log.info(String.format("[%s] \t TRACK: %s ",site,currTrack));
 					numTr++;
 				}
 
 				release.getMappaQualitaDati().put(C.TRACKS, quality(C.TRACKS));
-					
+
 				if(release.qualitaDatiMigliore(C.TRACKS, quality(C.TRACKS))) {
 					release.setTracks(tracksList);
-				} 
+				}
 //				else if(release.qualitaDatiMigliore(C.TRACKS, quality(C.TRACKS))) {
 //					// PRIORITA' ALLE TRACCE SCENELOG
 //					release.setTracks(SymusicUtility.chooseTrack(tracksList, release.getTracks(), true));
 //				}
-				
-				
-				
-				
+
+
 			}
-			
-			
+
 			Elements releaseDownloads = (Elements)this.runRole(doc, props.getProperty("release_loop_download"));
+			LinkModel currLink = null;
 			for(Element dl : releaseDownloads) {
-				release.addLink(this.popolateLink(dl));
+				currLink = this.popolateLink(dl);
+				release.addLink(currLink);
+				log.info(String.format("[%s] \t LINK: %s ",site,currLink));
 			}
-			
+
 			/**
 
 			Element releaseDownloads = doc.getElementsByClass(conf.RELEASE_DOWNLOAD).get(0);
@@ -148,7 +136,7 @@ public class ReleaseDetailsParser extends BaseParser {
 //			throw new ParseReleaseException("Errore nel parsing",e);
 		}
 		*/
-			
+
 		} catch(Exception e) {
 			throw e;
 		}
@@ -169,7 +157,7 @@ public class ReleaseDetailsParser extends BaseParser {
 			release.setReleaseDate(SymusicUtility.getStandardDate(scenelogModel.getReleaseDate()));
 			release.getMappaQualitaDati().put(C.REL_DATE, quality(C.REL_DATE));
 		}
-		
+
 		if(scenelogModel.getGenre()!=null && release.qualitaDatiMigliore(C.GENRE, quality(C.GENRE))) {
 			GenreModel genre = new GenreModel();
 			genre.setName(scenelogModel.getGenre());
@@ -183,14 +171,14 @@ public class ReleaseDetailsParser extends BaseParser {
 
 		return release;
 	}
-	
-	
+
+
 	public static void main(String[] args) {
-		
+
 		Element el = new Element(Tag.valueOf("span"), "");
 		el.append("Ciao");
 		System.out.println(el.text());
 		System.out.println(el.html());
 	}
-	
+
 }

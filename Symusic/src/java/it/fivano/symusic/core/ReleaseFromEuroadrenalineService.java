@@ -23,17 +23,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReleaseFromEuroadrenalineService extends ReleaseSiteService {
-	
+
 	private EuroadrenalineConf conf;
 	private String genre;
-	
+
 	private static int MAX_CONSECUTIVE_FAILS = 20;
-	
+
 	private List<ReleaseModel> listRelease;
-	
+
 	private static int pageGap = 50;
-	
-	
+	protected boolean enableBeatportService;
+	protected boolean enableScenelogService;
+	protected boolean enableYoutubeService;
+	protected boolean excludeRipRelease;
+	protected boolean excludeVA;
+
 	public ReleaseFromEuroadrenalineService(Long idUser) throws IOException {
 		super();
 		this.idUser = idUser;
@@ -44,30 +48,30 @@ public class ReleaseFromEuroadrenalineService extends ReleaseSiteService {
 		excludeRipRelease = true;
 		this.setLogger(getClass());
 	}
-	
-	
+
+
 	public List<ReleaseModel> parsePresceneRelease(String genere, int numPagine) throws BackEndException, ParseReleaseException {
-		
+
 		this.genre = genere;
 		listRelease = new ArrayList<ReleaseModel>();
 		try {
 			int count = 0;
-			
+
 			// PAGINA DI INIZIO
 			String urlConn = null;
 			EuroadrenalineParser music = new EuroadrenalineParser();
 			List<BaseReleaseParserModel> resZero = new ArrayList<BaseReleaseParserModel>();
 			while(count!=numPagine) {
 				count++;
-				
+
 				if(count==1)
 					urlConn = conf.URL+genere.toLowerCase();
 				else
 					urlConn = conf.URL+conf.PARAMS_PAGE.replace("{0}", genere.toLowerCase())+count;
-				
+
 				resZero.addAll(music.parseFullPage(urlConn,genere));
-				
-				
+
+
 			}
 
 			// init dei parser
@@ -82,13 +86,13 @@ public class ReleaseFromEuroadrenalineService extends ReleaseSiteService {
 
 				count++;
 				ReleaseModel release = new ReleaseModel();
-				
+
 				release.setNameWithUnderscore(sc.getReleaseName());
 				if(excludeRipRelease && this.isRadioRipRelease(release)) {
 					log.info(sc.getReleaseName()+" ignorata poichè è un RIP");
 					continue;
 				}
-				
+
 				if(excludeVA && this.isVARelease(release)) {
 					log.info(sc.getReleaseName()+" ignorata poichè è una VA");
 					continue;
@@ -124,7 +128,7 @@ public class ReleaseFromEuroadrenalineService extends ReleaseSiteService {
 					release = this.arricchisciRelease(sc, release);
 					SymusicUtility.processReleaseName(release);
 				}
-				
+
 //				if(!this.verificaAnnoRelease(release,annoDa,annoAl)) {
 //					log.info(sc.getReleaseName()+" ignorata poichè l'anno non è all'interno del range.");
 //					continue;
@@ -145,9 +149,9 @@ public class ReleaseFromEuroadrenalineService extends ReleaseSiteService {
 				if(scenelog.getCountFailConnection()>MAX_CONSECUTIVE_FAILS)
 					log.warn("Il sito 'Scenelog' sembrerebbe al momento non raggiungibile... verra' di seguito disabilitata la ricerca.");
 				if(enableScenelogService && scenelog.getCountFailConnection()<=MAX_CONSECUTIVE_FAILS) {
-					
+
 					release = linkService.searchlink(release);
-					
+
 				}
 
 				// YOUTUBE VIDEO
@@ -155,7 +159,7 @@ public class ReleaseFromEuroadrenalineService extends ReleaseSiteService {
 					List<VideoModel> youtubeVideos = youtube.searchYoutubeVideos(release.getName());
 					release.setVideos(youtubeVideos);
 
-					if(release.getVideos().isEmpty()) 
+					if(release.getVideos().isEmpty())
 						SymusicUtility.updateReleaseExtraction(extr,false,AreaExtraction.YOUTUBE);
 					else
 						SymusicUtility.updateReleaseExtraction(extr,true,AreaExtraction.YOUTUBE);
@@ -168,10 +172,10 @@ public class ReleaseFromEuroadrenalineService extends ReleaseSiteService {
 
 
 				// AGGIUNGE I LINK DI RICERCA MANUALE (DIRETTAMENTE SU GOOGLE E YOUTUBE)
-				
+
 				google.addManualSearchLink(release);
 				youtube.addManualSearchLink(release); // link a youtube per la ricerca manuale
-				
+
 				log.info("********* Processate "+count+" release su "+resZero.size()+"*********");
 
 
@@ -186,12 +190,12 @@ public class ReleaseFromEuroadrenalineService extends ReleaseSiteService {
 
 		} catch (Exception e) {
 			throw new ParseReleaseException("Errore nel parsing delle pagine",e);
-		} 
+		}
 
 		return listRelease;
-		
+
 	}
-	
+
 	private ReleaseModel arricchisciRelease(BaseReleaseParserModel sc, ReleaseModel release) throws ParseException {
 		release.setCrew(sc.getCrew());
 		release.setGenre(SymusicUtility.creaGenere(sc.getGenre()));
@@ -202,14 +206,14 @@ public class ReleaseFromEuroadrenalineService extends ReleaseSiteService {
 
 
 	protected boolean isRadioRipRelease(ReleaseModel release) {
-		
+
 		ReleaseModel r = new ReleaseModel();
 		r.setNameWithUnderscore(release.getNameWithUnderscore().replace(" ", "-"));
 
 		return super.isRadioRipRelease(r);
 	}
 
-	
+
 
 	private String genericFilter(String text) {
 		if(text!=null) {
@@ -222,11 +226,61 @@ public class ReleaseFromEuroadrenalineService extends ReleaseSiteService {
 	}
 
 
+	public boolean isEnableBeatportService() {
+		return enableBeatportService;
+	}
+
+
+	public void setEnableBeatportService(boolean enableBeatportService) {
+		this.enableBeatportService = enableBeatportService;
+	}
+
+
+	public boolean isEnableScenelogService() {
+		return enableScenelogService;
+	}
+
+
+	public void setEnableScenelogService(boolean enableScenelogService) {
+		this.enableScenelogService = enableScenelogService;
+	}
+
+
+	public boolean isEnableYoutubeService() {
+		return enableYoutubeService;
+	}
+
+
+	public void setEnableYoutubeService(boolean enableYoutubeService) {
+		this.enableYoutubeService = enableYoutubeService;
+	}
+
+
+	public boolean isExcludeRipRelease() {
+		return excludeRipRelease;
+	}
+
+
+	public void setExcludeRipRelease(boolean excludeRipRelease) {
+		this.excludeRipRelease = excludeRipRelease;
+	}
+
+
+	public boolean isExcludeVA() {
+		return excludeVA;
+	}
+
+
+	public void setExcludeVA(boolean excludeVA) {
+		this.excludeVA = excludeVA;
+	}
+
+
 	public static void main(String[] args) throws IOException, ParseException, BackEndException, ParseReleaseException {
 //		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 //		Date da = sdf.parse("20150215");
 //		Date a = sdf.parse("20150216");
-		
+
 		ReleaseFromEuroadrenalineService s = new ReleaseFromEuroadrenalineService(1L);
 		List<ReleaseModel> res = s.parsePresceneRelease("House",2);
 //		List<ReleaseModel> res = s.parseMusicDLRelease("trance",da,a);
@@ -244,5 +298,5 @@ public class ReleaseFromEuroadrenalineService extends ReleaseSiteService {
 		return result;
 	}
 
-	
+
 }

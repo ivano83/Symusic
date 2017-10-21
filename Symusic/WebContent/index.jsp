@@ -24,10 +24,137 @@
 				 $('.inDate').val(responseText);
 	     });
 		}
+
+		function chooseCrewOrGenre(scelta) {
+			if(scelta==1) {
+				document.getElementById('genreSelect').style.display='block';
+				document.getElementById('crewSelect').style.display='none';
+			} else if(scelta==2) {
+				document.getElementById('crewSelect').style.display='block';
+				document.getElementById('genreSelect').style.display='none';
+			} else {
+				document.getElementById('crewSelect').style.display='none';
+				document.getElementById('genreSelect').style.display='none';
+			}
+
+		}
 	</script>
 </head>
-<body>
+<body onload="javascript:chooseCrewOrGenre(1);">
 <h2>S Y M U S I C</h2>
+
+<form action="MassiveReleaseServlet" id="form0">
+
+	<table>
+		<tr>
+			<td>
+
+				<span><input type="radio" name="crewOrGenre" value="genre" checked="checked" onclick="javascript:chooseCrewOrGenre(1);" >Genere </span>
+				<span><input type="radio" name="crewOrGenre" value="crew" onclick="javascript:chooseCrewOrGenre(2);" >Crew </span>
+			</td>
+			<td>
+				<select id="genreSelect" name="genre" onchange="javascript:lastReleaseDate(document.forms['form1'].elements['genre'].value)">
+					<option value="dance" selected="selected">Dance</option>
+					<option value="trance">Trance</option>
+					<option value="house">House</option>
+					<option value="techno">Techno</option>
+				</select>
+				<select id="crewSelect" name="crew">
+					<c:forEach items="${crewList}" var="cr">
+        				<option value="${cr}">${cr}</option>
+    			  	</c:forEach>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div>Data inizio </div>
+			</td>
+			<td>
+				<input type="text" name="initDate" class="inDate tcal">
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div>Data Fine </div>
+			</td>
+			<td>
+				<input type="text" name="endDate" class="outDate tcal">
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div>Estrai dati da Beatport</div>
+
+			</td>
+			<td>
+				<input type="checkbox" name="enableBeatport" value="true"/>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div>Ignora Release Radio/Sat RIP</div>
+			</td>
+			<td>
+				<input type="checkbox" name="excludeRelaseRip" value="true" checked="checked" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div>Ignora Release Various Artist (VA)</div>
+			</td>
+			<td>
+				<input type="checkbox" name="excludeVA" value="true" checked="checked" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div>Range Data</div>
+			</td>
+			<td>
+				<jsp:useBean id="date" class="java.util.Date" />
+				<fmt:formatDate value="${date}" pattern="yyyy" var="currentYear" />
+				Dal <select id="annoDa" name="annoDa" onchange="javascript:checkDataRange();">
+				<c:forEach items="${listaAnni}" var="anno">
+					<c:choose>
+						<c:when test="${anno==currentYear}">
+							<option value="${anno}" selected="selected">${anno}</option>
+						</c:when>
+						<c:otherwise>
+							<option value="${anno}">${anno}</option>
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+				</select>
+				Al <select id="annoAl" name="annoAl" onchange="javascript:checkDataRange();">
+				<c:forEach items="${listaAnni}" var="anno">
+					<c:choose>
+						<c:when test="${anno==currentYear}">
+							<option value="${anno}" selected="selected">${anno}</option>
+						</c:when>
+						<c:otherwise>
+							<option value="${anno}">${anno}</option>
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div>Ricarica pagina precedente</div>
+			</td>
+			<td>
+				<input type="checkbox" name="reload" value="true" />
+			</td>
+		</tr>
+	</table>
+	<input type="submit" value="Ricerca">
+
+</form>
+
+<div style="padding-bottom: 60px"></div>
+
 
 <form action="ZeroDayMusicServlet" id="form1">
 
@@ -104,7 +231,6 @@
 				<div>Range Data</div>
 			</td>
 			<td>
-				<jsp:useBean id="date" class="java.util.Date" />
 				<fmt:formatDate value="${date}" pattern="yyyy" var="currentYear" />
 				Dal <select id="annoDa" name="annoDa" onchange="javascript:checkDataRange();">
 				<c:forEach items="${listaAnni}" var="anno">

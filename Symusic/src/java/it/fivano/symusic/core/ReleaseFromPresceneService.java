@@ -1,25 +1,5 @@
 package it.fivano.symusic.core;
 
-import it.fivano.symusic.SymusicUtility;
-import it.fivano.symusic.backend.service.ReleaseService;
-import it.fivano.symusic.conf.PresceneConf;
-import it.fivano.symusic.core.parser.BeatportParser;
-import it.fivano.symusic.core.parser.MusicDLParser;
-import it.fivano.symusic.core.parser.PresceneParser;
-import it.fivano.symusic.core.parser.ScenelogParser;
-import it.fivano.symusic.core.parser.YoutubeParser;
-import it.fivano.symusic.core.parser.model.BaseReleaseParserModel;
-import it.fivano.symusic.core.parser.model.BeatportParserModel;
-import it.fivano.symusic.core.parser.model.BaseMusicParserModel;
-import it.fivano.symusic.core.parser.model.ScenelogParserModel;
-import it.fivano.symusic.core.thread.SupportObject;
-import it.fivano.symusic.exception.BackEndException;
-import it.fivano.symusic.exception.ParseReleaseException;
-import it.fivano.symusic.model.ReleaseExtractionModel;
-import it.fivano.symusic.model.ReleaseExtractionModel.AreaExtraction;
-import it.fivano.symusic.model.ReleaseModel;
-import it.fivano.symusic.model.VideoModel;
-
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -28,12 +8,39 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import it.fivano.symusic.SymusicUtility;
+import it.fivano.symusic.backend.service.ReleaseService;
+import it.fivano.symusic.conf.PresceneConf;
+import it.fivano.symusic.core.parser.BeatportParser;
+import it.fivano.symusic.core.parser.PresceneParser;
+import it.fivano.symusic.core.parser.ScenelogParser;
+import it.fivano.symusic.core.parser.YoutubeParser;
+import it.fivano.symusic.core.parser.model.BaseReleaseParserModel;
+import it.fivano.symusic.core.parser.model.BeatportParserModel;
+import it.fivano.symusic.core.thread.SupportObject;
+import it.fivano.symusic.core.util.C.SearchType;
+import it.fivano.symusic.exception.BackEndException;
+import it.fivano.symusic.exception.ParseReleaseException;
+import it.fivano.symusic.model.ReleaseExtractionModel;
+import it.fivano.symusic.model.ReleaseExtractionModel.AreaExtraction;
+import it.fivano.symusic.model.ReleaseModel;
+import it.fivano.symusic.model.VideoModel;
+
 public class ReleaseFromPresceneService extends ReleaseSiteService {
 
 	private PresceneConf conf;
 	private String genre;
 
 	private static int MAX_CONSECUTIVE_FAILS = 20;
+
+	private boolean enableBeatportService;
+	private boolean enableScenelogService;
+	private boolean enableYoutubeService;
+	private boolean excludeRipRelease;
+	private boolean excludeVA;
+
+	protected String annoDa;
+	protected String annoAl;
 
 	private List<ReleaseModel> listRelease;
 
@@ -48,6 +55,7 @@ public class ReleaseFromPresceneService extends ReleaseSiteService {
 		enableScenelogService = true;
 		enableYoutubeService = true;
 		excludeRipRelease = true;
+		excludeVA = true;
 		this.setLogger(getClass());
 	}
 
@@ -59,7 +67,7 @@ public class ReleaseFromPresceneService extends ReleaseSiteService {
 		try {
 
 			String param = conf.PARAMS_GENRE;
-			if(searchType.equals(SearchType.SEARCH_CREW)) {
+			if(searchType.equals(SearchType.SEARCH_BY_CREW)) {
 				param = conf.PARAMS_CREW;
 			}
 
@@ -111,7 +119,7 @@ public class ReleaseFromPresceneService extends ReleaseSiteService {
 					continue;
 				}
 
-				if(excludeVA && this.isVARelease(release)) {
+				if(excludeVA && this.isVARelease(sc.getReleaseName())) {
 					log.info(sc.getReleaseName()+" ignorata poichè è una VA");
 					continue;
 				}
@@ -188,7 +196,6 @@ public class ReleaseFromPresceneService extends ReleaseSiteService {
 				// AGGIORNAMENTI DEI DATI SUL DB
 				this.saveOrUpdateRelease(release, isRecuperato);
 
-
 				// AGGIUNGE I LINK DI RICERCA MANUALE (DIRETTAMENTE SU GOOGLE E YOUTUBE)
 
 				google.addManualSearchLink(release);
@@ -230,7 +237,7 @@ public class ReleaseFromPresceneService extends ReleaseSiteService {
 		ReleaseModel r = new ReleaseModel();
 		r.setNameWithUnderscore(release.getNameWithUnderscore().replace(" ", "-"));
 
-		return super.isRadioRipRelease(r);
+		return super.isRadioRipRelease(r.getNameWithUnderscore());
 	}
 
 	private boolean verificaAnnoRelease(ReleaseModel release, String annoDa, String annoAl) {
@@ -338,7 +345,7 @@ public class ReleaseFromPresceneService extends ReleaseSiteService {
 		Date a = sdf.parse("20150216");
 
 		ReleaseFromPresceneService s = new ReleaseFromPresceneService(1L);
-		List<ReleaseModel> res = s.parsePresceneRelease("Dance", da, a, SearchType.SEARCH_GENRE);
+		List<ReleaseModel> res = s.parsePresceneRelease("Dance", da, a, SearchType.SEARCH_BY_GENRE);
 //		List<ReleaseModel> res = s.parseMusicDLRelease("trance",da,a);
 		for(ReleaseModel r : res)
 			System.out.println(r);

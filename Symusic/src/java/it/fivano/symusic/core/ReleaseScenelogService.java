@@ -45,7 +45,13 @@ public class ReleaseScenelogService extends ReleaseSiteService {
 
 	private List<ReleaseModel> listRelease;
 
-
+	private boolean enableBeatportService;
+	private boolean enableScenelogService;
+	private boolean enableYoutubeService;
+	protected boolean excludeRipRelease;
+	protected boolean excludeVA;
+	protected String annoDa;
+	protected String annoAl;
 
 	public ReleaseScenelogService(Long idUser) throws IOException {
 		super();

@@ -42,7 +42,13 @@ public class Release0DayMp3Service extends ReleaseSiteService {
 
 	private List<ReleaseModel> listRelease;
 
-
+	protected boolean enableBeatportService;
+	protected boolean enableScenelogService;
+	protected boolean enableYoutubeService;
+	protected boolean excludeRipRelease;
+	protected boolean excludeVA;
+	protected String annoDa;
+	protected String annoAl;
 
 	public Release0DayMp3Service(Long idUser) throws IOException {
 		super();
@@ -443,6 +449,56 @@ public class Release0DayMp3Service extends ReleaseSiteService {
 	@Override
 	protected String applyFilterSearch(String result) {
 		return result;
+	}
+
+
+	public boolean isEnableBeatportService() {
+		return enableBeatportService;
+	}
+
+
+	public void setEnableBeatportService(boolean enableBeatportService) {
+		this.enableBeatportService = enableBeatportService;
+	}
+
+
+	public boolean isEnableScenelogService() {
+		return enableScenelogService;
+	}
+
+
+	public void setEnableScenelogService(boolean enableScenelogService) {
+		this.enableScenelogService = enableScenelogService;
+	}
+
+
+	public boolean isEnableYoutubeService() {
+		return enableYoutubeService;
+	}
+
+
+	public void setEnableYoutubeService(boolean enableYoutubeService) {
+		this.enableYoutubeService = enableYoutubeService;
+	}
+
+
+	public boolean isExcludeRipRelease() {
+		return excludeRipRelease;
+	}
+
+
+	public void setExcludeRipRelease(boolean excludeRipRelease) {
+		this.excludeRipRelease = excludeRipRelease;
+	}
+
+
+	public boolean isExcludeVA() {
+		return excludeVA;
+	}
+
+
+	public void setExcludeVA(boolean excludeVA) {
+		this.excludeVA = excludeVA;
 	}
 
 

@@ -40,9 +40,11 @@ public class BaseParser {
 
 		String[] regole = routingReleaseName.split("\\|\\|");
 
+		boolean stopPipeline = false;
 		Elements tmp = new Elements(inputElement);
 		String regola = null;
 		Object valore = null;
+		String concat = "";
 		for(int i=0; i<regole.length; i++) {
 			if(tmp==null)
 				throw new Exception("La regola "+regola+" non ha prodotto alcun risultato");
@@ -51,11 +53,14 @@ public class BaseParser {
 			if(regola.contains("get=")) {
 				tmp = new Elements(tmp.get(Integer.parseInt(regola.replace("get=", "").trim())));
 			} else if(regola.contains("attr=")) {
-				valore = tmp.get(0).attr(regola.replace("attr=", "").trim());
+				if(tmp.size()>0) valore = tmp.get(0).attr(regola.replace("attr=", "").trim());
+				else stopPipeline = true;
 			} else if(regola.contains("text()")) {
-				valore = tmp.get(0).text();
+				if(tmp.size()>0) valore = tmp.get(0).text();
+				else stopPipeline = true;
 			} else if(regola.contains("html()")) {
-				valore = tmp.get(0).html();
+				if(tmp.size()>0) valore = tmp.get(0).html();
+				else stopPipeline = true;
 			} else if(regola.contains("split=")) {
 				String[] regSplit = regola.replace("split=", "").split("\\(");
 				if(regSplit.length==2)
@@ -75,17 +80,35 @@ public class BaseParser {
 				valore = elems;
 			} else if(regola.contains("class=")) {
 				tmp = tmp.get(0).getElementsByClass(regola.replace("class=", "").trim());
+			} else if(regola.contains("excludeFirst")) {
+				if(tmp.size()>0 ) tmp.remove(0);
+			} else if(regola.contains("concat")) {
+				concat += (String)valore;
+				tmp = new Elements(inputElement); // reset nodo di input
+			} else if(regola.contains("static=")) {
+				String staticString = regola.substring(0, regola.length()-1).replace("static='", "");
+				concat += staticString;
+				if(valore!=null)
+					valore += staticString;
+				else
+					valore = staticString;
 			} else {
 				tmp = tmp.select(regola);
 			}
 
 
+			if(stopPipeline)
+				break;
+
 		}
 
 		// senza il recupero di un valore, viene presa la lista degli elementi correnti
-		if(tmp!=null && !tmp.isEmpty() && valore==null)
+		if(tmp!=null && valore==null)
 			valore = tmp;
 
+		if(valore instanceof String && !concat.isEmpty()) {
+			valore = concat + valore;
+		}
 
 		return valore;
 	}
@@ -102,18 +125,33 @@ public class BaseParser {
 			regola = regole[i].trim();
 
 			if(regola.contains("replaceAll=")) {
-				String[] regSplit = regola.replace("replaceAll=", "").split("\\(");
-				valore = valore.replaceAll(regSplit[0],regSplit[1].replace(")", ""));
+				String[] regSplit = regola.replace("replaceAll=", "").split("<<");
+				valore = valore.replaceAll(regSplit[0],regSplit[1].replace(">>", ""));
 
 			} else if(regola.contains("replace=")) {
-				String[] regSplit = regola.replace("replace=", "").split("\\(");
-				valore = valore.replace(regSplit[0],regSplit[1].replace(")", ""));
+				String[] regSplit = regola.replace("replace=", "").split("<<");
+				valore = valore.replace(regSplit[0],regSplit[1].replace(">>", ""));
+
+			} else if(regola.contains("lowerCase")) {
+				valore = valore.toLowerCase();
 
 			}
 		}
 
 		return valore;
 
+	}
+
+	protected String risolviUrl(String urlPattern, String pagingNumber) {
+		String innerProps = null;
+		while(urlPattern.contains("[")) {
+			innerProps = urlPattern.substring(urlPattern.indexOf("[")+1,urlPattern.indexOf("]"));
+			if("params_page".equals(innerProps)) // paginazione
+				urlPattern = urlPattern.replace("["+innerProps+"]", props.getProperty(innerProps).replace("{0}", pagingNumber));
+			else
+				urlPattern = urlPattern.replace("["+innerProps+"]", props.getProperty(innerProps));
+		}
+		return urlPattern;
 	}
 
 	protected LinkModel popolateLink(Element dl) {

@@ -2,6 +2,8 @@ package it.fivano.symusic.core.util;
 
 import java.util.Date;
 
+import it.fivano.symusic.core.util.C.SearchType;
+
 public class SearchInput {
 
 
@@ -11,7 +13,10 @@ public class SearchInput {
 	private String crew;
 	private String name;
 	private boolean excludeRadioRip;
-	private String searchType;
+	private boolean excludeVa;
+	private SearchType searchType;
+	private int annoMin;
+	private int annoMax;
 
 	public Date getDataDa() {
 		return dataDa;
@@ -49,12 +54,29 @@ public class SearchInput {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public String getSearchType() {
+	public SearchType getSearchType() {
 		return searchType;
 	}
-	public void setSearchType(String searchType) {
+	public void setSearchType(SearchType searchType) {
 		this.searchType = searchType;
 	}
-
+	public boolean isExcludeVa() {
+		return excludeVa;
+	}
+	public void setExcludeVa(boolean excludeVa) {
+		this.excludeVa = excludeVa;
+	}
+	public int getAnnoMin() {
+		return annoMin;
+	}
+	public void setAnnoMin(int annoMin) {
+		this.annoMin = annoMin;
+	}
+	public int getAnnoMax() {
+		return annoMax;
+	}
+	public void setAnnoMax(int annoMax) {
+		this.annoMax = annoMax;
+	}
 
 }

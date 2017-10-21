@@ -18,6 +18,7 @@ import it.fivano.symusic.SymusicUtility;
 import it.fivano.symusic.conf.SymusicConf;
 import it.fivano.symusic.core.parser.model.BaseReleaseParserModel;
 import it.fivano.symusic.core.util.C;
+import it.fivano.symusic.core.util.C.SearchType;
 import it.fivano.symusic.core.util.SearchInput;
 import it.fivano.symusic.core.util.UserAgent;
 import it.fivano.symusic.exception.ParseReleaseException;
@@ -27,6 +28,7 @@ public class ReleaseListParser extends BaseParser {
 
 
 	protected SearchInput searchInput;
+
 
 	public ReleaseListParser(Properties props) {
 		super();
@@ -45,7 +47,7 @@ public class ReleaseListParser extends BaseParser {
 		searchInput.setDataA(a);
 		searchInput.setGenre(genre==null?"":genre);
 		searchInput.setExcludeRadioRip(excludeRadioRip);
-		searchInput.setSearchType(C.SEARCH_BY_GENRE);
+		searchInput.setSearchType(SearchType.SEARCH_BY_GENRE);
 
 		return search();
 
@@ -59,7 +61,7 @@ public class ReleaseListParser extends BaseParser {
 		searchInput.setGenre("");
 		searchInput.setCrew(crew);
 		searchInput.setExcludeRadioRip(excludeRadioRip);
-		searchInput.setSearchType(C.SEARCH_BY_CREW);
+		searchInput.setSearchType(SearchType.SEARCH_BY_CREW);
 
 		return search();
 
@@ -71,7 +73,7 @@ public class ReleaseListParser extends BaseParser {
 		searchInput.setGenre("");
 		searchInput.setName(this.applyFilterSearch(name));
 		searchInput.setExcludeRadioRip(excludeRadioRip);
-		searchInput.setSearchType(C.SEARCH_BY_NAME);
+		searchInput.setSearchType(SearchType.SEARCH_BY_NAME);
 
 		return search();
 
@@ -83,7 +85,7 @@ public class ReleaseListParser extends BaseParser {
 		searchInput.setGenre("");
 		searchInput.setName(name);
 		searchInput.setExcludeRadioRip(excludeRadioRip);
-		searchInput.setSearchType(C.SEARCH_BY_RELEASE_NAME);
+		searchInput.setSearchType(SearchType.SEARCH_BY_RELEASE_NAME);
 
 		return search();
 
@@ -95,17 +97,17 @@ public class ReleaseListParser extends BaseParser {
 		List<BaseReleaseParserModel> listaRelease = new ArrayList<BaseReleaseParserModel>();
 
 		int pageGap = props.getProperty("page_gap")!=null ? Integer.parseInt(props.getProperty("page_gap")) : 1;
-		int pagina = 1;
+		int pagina = props.getProperty("page_start")!=null ? Integer.parseInt(props.getProperty("page_start")) : 1;
 
 		String urlPage = null;
 		String urlPattern = null;
-		if(C.SEARCH_BY_NAME.equals(searchInput.getSearchType()) && props.getProperty("search_byName")!=null) {
+		if(SearchType.SEARCH_BY_NAME.equals(searchInput.getSearchType()) && props.getProperty("search_byName")!=null) {
 			urlPattern = props.getProperty("search_byName").replace("{0}", searchInput.getName());
-		} else if(C.SEARCH_BY_CREW.equals(searchInput.getSearchType()) && props.getProperty("search_byCrew")!=null) {
+		} else if(SearchType.SEARCH_BY_CREW.equals(searchInput.getSearchType()) && props.getProperty("search_byCrew")!=null) {
 			urlPattern = props.getProperty("search_byCrew").replace("{0}", searchInput.getCrew());
-		} else if(C.SEARCH_BY_GENRE.equals(searchInput.getSearchType()) && props.getProperty("search_byGenre")!=null) {
+		} else if(SearchType.SEARCH_BY_GENRE.equals(searchInput.getSearchType()) && props.getProperty("search_byGenre")!=null) {
 			urlPattern = props.getProperty("search_byGenre").replace("{0}", searchInput.getGenre());
-		} else if(C.SEARCH_BY_RELEASE_NAME.equals(searchInput.getSearchType()) && props.getProperty("search_byReleaseName")!=null) {
+		} else if(SearchType.SEARCH_BY_RELEASE_NAME.equals(searchInput.getSearchType()) && props.getProperty("search_byReleaseName")!=null) {
 			urlPattern = props.getProperty("search_byReleaseName").replace("{0}", searchInput.getName());
 		} else {
 			String msg = "La ricerca per '"+searchInput.getSearchType()+"' non è gestita!";
@@ -115,27 +117,17 @@ public class ReleaseListParser extends BaseParser {
 		urlPage = this.risolviUrl(urlPattern, (pageGap*pagina)+"");
 
 		while(parseFullPage(listaRelease, urlPage)) {
+			pagina++;
 
 			urlPage = this.risolviUrl(urlPattern, (pageGap*pagina)+"");
 
-			pagina++;
 		}
 
 		return listaRelease;
 
 	}
 
-	private String risolviUrl(String urlPattern, String pagingNumber) {
-		String innerProps = null;
-		while(urlPattern.contains("[")) {
-			innerProps = urlPattern.substring(urlPattern.indexOf("[")+1,urlPattern.indexOf("]"));
-			if("params_page".equals(innerProps)) // paginazione
-				urlPattern = urlPattern.replace("["+innerProps+"]", props.getProperty(innerProps).replace("{0}", pagingNumber));
-			else
-				urlPattern = urlPattern.replace("["+innerProps+"]", props.getProperty(innerProps));
-		}
-		return urlPattern;
-	}
+
 
 	private boolean parseFullPage(List<BaseReleaseParserModel> listaRelease, String urlPage) throws ParseReleaseException {
 
@@ -155,8 +147,13 @@ public class ReleaseListParser extends BaseParser {
 			if(antiDDOS.isAntiDDOS(doc)) {
 				doc = this.bypassAntiDDOS(doc, baseUrl, urlPage, userAgent);
 			}
+			else if(doc.text().contains("wait 4 seconds then reload page") || doc.text().contains(" preparing http")) {
+				Thread.sleep(4100);
+				doc = Jsoup.connect(urlPage).timeout(TIMEOUT).userAgent(userAgent).ignoreHttpErrors(true).get();
+			}
 
-			Elements releaseGroup = doc.getElementsByClass(props.getProperty("loop_list_item"));
+//			Elements releaseGroup = doc.getElementsByClass(props.getProperty("loop_list_item"));
+			Elements releaseGroup = (Elements)this.runRole(doc,props.getProperty("loop_list_item"));
 			if(releaseGroup.size()>0) {
 				BaseReleaseParserModel release = null;
 				log.info("####################################");
@@ -171,7 +168,7 @@ public class ReleaseListParser extends BaseParser {
 					if((searchInput.isExcludeRadioRip() && release.isRadioRip()) || !continuaPaginaSuccessiva) {
 						// e' un radio rip o un fuori range
 					}
-					else {
+					else if(release.isDateInRange()){
 						listaRelease.add(release);
 						log.info("|"+release+"| acquisita");
 					}
@@ -213,7 +210,8 @@ public class ReleaseListParser extends BaseParser {
 		release.setReleaseName(releaseName);
 
 		// URL
-		release.setUrlReleaseDetails((String)this.runRole(tmp,props.getProperty("item_url")));
+		if(props.getProperty("item_url")!=null)
+			release.setUrlReleaseDetails((String)this.runRole(tmp,props.getProperty("item_url")));
 
 		// RELEASE DATE
 		release.setReleaseDate(dateInDate);
@@ -271,37 +269,47 @@ public class ReleaseListParser extends BaseParser {
 		return false;
 	}
 
-
+	public SearchInput getSearchInput() {
+		return searchInput;
+	}
 
 	public static void main(String[] args) throws Exception {
 		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-		Date da = sdf.parse("13-07-2017");
-		Date a = sdf.parse("13-07-2017");
-		Properties props = new SymusicConf().loadProperties("scnlog");
+		Date da = sdf.parse("29-09-2017");
+		Date a = sdf.parse("29-09-2017");
+		Properties props = new SymusicConf().loadProperties("prescene");
 		ReleaseListParser p = new ReleaseListParser(props);
 //		System.setProperty("https.proxyHost", "10.55.32.23");
 //		System.setProperty("https.proxyPort", "80");
 
-//		List<BaseReleaseParserModel> m = p.searchByGenre(props,da,a,"trance",true);
+		List<BaseReleaseParserModel> m = p.searchByGenre(da,a,"Trance",true);
 //
 //		ReleaseModel release = new ReleaseModel();
 //		ReleaseDetailsParser re = new ReleaseDetailsParser();
 //		re.parseReleaseDetails(props, m.get(0), release);
 //
 //		System.out.println(release);
-		String urlPattern = "[base_url]/music/{0}[params_page]";
-		System.out.println(p.risolviUrl(urlPattern, "1"));
+		System.out.println(m);
 
 //		List<BaseReleaseParserModel> m = p.searchByName("bone man", true);
 //		System.out.println(m);
 
-		List<BaseReleaseParserModel> m = p.searchByReleaseName("Pete_Sheppibone_and_Sashman_feat_Toni_Fox_-_Paradise-(SFL_036)-WEB-2017-ZzZz", true);
+		/*
+		List<BaseReleaseParserModel> m = p.searchByReleaseName("Morker-Thoughts-(BLR001)-WEB-2017-CBR", true);
 		System.out.println(m);
 
 		ReleaseModel release = new ReleaseModel();
 		ReleaseDetailsParser re = new ReleaseDetailsParser(props);
 		re.releaseDetails(m.get(0), release);
 		System.out.println(release);
+
+
+		props = new SymusicConf().loadProperties("bestelectronicmusic");
+		re = new ReleaseDetailsParser(props);
+		re.searchByName(release.getNameWithUnderscore(), release);
+
+		System.out.println(release);
+		*/
 	}
 
 

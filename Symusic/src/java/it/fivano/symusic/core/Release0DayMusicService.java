@@ -22,13 +22,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class Release0DayMusicService extends ReleaseSiteService {
-	
+
 	private ZeroDayMusicConf conf;
-	
+
 	private boolean enableBeatportService;
 	private boolean enableScenelogService;
 	private boolean enableYoutubeService;
-	
+	private boolean excludeRipRelease;
+	private boolean excludeVA;
+
 	public Release0DayMusicService(Long idUser) throws IOException {
 		super();
 		this.idUser = idUser;
@@ -38,56 +40,56 @@ public class Release0DayMusicService extends ReleaseSiteService {
 		enableYoutubeService = true;
 		this.setLogger(getClass());
 	}
-	
-	
+
+
 	public List<ReleaseModel> parse0DayMusicRelease(String genere, Date da, Date a) throws BackEndException, ParseReleaseException {
-		
+
 		List<ReleaseModel> listRelease = null;
-		
+
 		try {
-			
+
 			// PAGINA DI INIZIO
 			String urlConn = conf.URL+conf.URL_ACTION+"?"+conf.PARAMS.replace("{0}", genere);
-			
+
 			// OGGETTO PER GESTIRE IL CARICAMENTO DELLE PAGINE SUCCESSIVE DEL SITO
 			ZeroDayMusicInfo info = new ZeroDayMusicInfo();
 			info.setProcessNextPage(true);
-			
+
 			// PROCESSA LE RELEASE DELLA PRIMA PAGINA
 			listRelease = this.parse0DayMusic(urlConn, da, a, info);
-			
+
 			// SE C'È DA RECUPERARE ALTRE RELEASE, CAMBIA PAGINA
 			while(info.isProcessNextPage()) {
-				
+
 				log.info("Andiamo alla pagina successiva...");
 				// PROCESSA LE RELEASE DELLE PAGINE SUCCESSIVE
 				listRelease.addAll(this.parse0DayMusic(info.getNextPage(), da, a, info));
-				
+
 			}
-			
+
 			// INIT OGGETTO DI SUPPORTO UNICO PER TUTTI I THREAD
 			SupportObject supp = new SupportObject();
 			supp.setEnableBeatportService(enableBeatportService);
 			supp.setEnableScenelogService(enableScenelogService);
 			supp.setEnableYoutubeService(enableYoutubeService);
 			supp.setIdUser(idUser);
-			
+
 			listRelease = this.arricchimentoRelease(listRelease, supp);
-			
+
 		} catch (Exception e) {
 			throw new ParseReleaseException("Errore nel parsing delle pagine",e);
-		} 
+		}
 
 		return listRelease;
-		
+
 	}
-	
-	
-	
+
+
+
 	private List<ReleaseModel> parse0DayMusic(String urlConn, Date da, Date a, ZeroDayMusicInfo info) throws BackEndException, ParseReleaseException, ParseException, IOException {
-		
+
 		List<ReleaseModel> listRelease = new ArrayList<ReleaseModel>();
-		
+
 		if(urlConn == null)
 			return listRelease;
 
@@ -129,11 +131,11 @@ public class Release0DayMusicService extends ReleaseSiteService {
 				String title = linkDoc.attr("title");
 				release.setName(title.replace("_", " "));
 				release.setNameWithUnderscore(title.replace(" ", "_"));
-				
+
 				if(excludeRipRelease && this.isRadioRipRelease(release)) {
 					continue;
 				}
-				
+
 				if(excludeVA && this.isVARelease(release)) {
 					continue;
 				}
@@ -154,30 +156,30 @@ public class Release0DayMusicService extends ReleaseSiteService {
 
 				// RELEASE DATE
 				release.setReleaseDate(dateIn);
-				
+
 				// AGGIUNGE ULTERIORI INFO DELLA RELEASE A PARTIRE DAL NOME
 				// ES. CREW E ANNO RELEASE
 				SymusicUtility.processReleaseName(release);
-				
+
 				log.info("|"+release+"| acquisita");
 				log.info("####################################");
-								
+
 				listRelease.add(release);
-				
+
 				count++;
 			}
 		}
 
 		return listRelease;
-		
-		
+
+
 	}
-	
+
 
 
 
 	private String extractNextPage(Document doc) {
-		
+
 		Element docSub = doc.getElementsByAttributeValue("id",conf.ID_NEXT_PAGES).get(0);
 		String currPage = docSub.getElementsByTag("span").get(0).text();
 		Elements nextPages = docSub.getElementsByTag("a");
@@ -203,23 +205,23 @@ public class Release0DayMusicService extends ReleaseSiteService {
 
 
 	private String getStandardDateFormat(String dateIn) throws ParseException {
-		
+
 		String zeroDayFormat = conf.DAY_FORMAT;
-		
+
 		return SymusicUtility.getStandardDateFormat(dateIn, zeroDayFormat);
-	
+
 	}
 
 	public static void main(String[] args) throws IOException, ParseException, BackEndException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 		Date da = sdf.parse("20130802");
 		Date a = sdf.parse("20130803");
-		
+
 		Release0DayMusicService s = new Release0DayMusicService(1L);
 //		List<ReleaseModel> res = s.parse0DayMusicRelease("trance",da,a);
 //		for(ReleaseModel r : res)
 //			System.out.println(r);
-		
+
 		System.out.println("fhfh( dewdef) fef".replaceAll("[()]", ""));
 	}
 
@@ -234,6 +236,46 @@ public class Release0DayMusicService extends ReleaseSiteService {
 	}
 
 
+	public boolean isEnableScenelogService() {
+		return enableScenelogService;
+	}
+
+
+	public void setEnableScenelogService(boolean enableScenelogService) {
+		this.enableScenelogService = enableScenelogService;
+	}
+
+
+	public boolean isEnableYoutubeService() {
+		return enableYoutubeService;
+	}
+
+
+	public void setEnableYoutubeService(boolean enableYoutubeService) {
+		this.enableYoutubeService = enableYoutubeService;
+	}
+
+
+	public boolean isExcludeRipRelease() {
+		return excludeRipRelease;
+	}
+
+
+	public void setExcludeRipRelease(boolean excludeRipRelease) {
+		this.excludeRipRelease = excludeRipRelease;
+	}
+
+
+	public boolean isExcludeVA() {
+		return excludeVA;
+	}
+
+
+	public void setExcludeVA(boolean excludeVA) {
+		this.excludeVA = excludeVA;
+	}
+
+
 	@Override
 	protected String applyFilterSearch(String result) {
 		return result;
@@ -241,10 +283,10 @@ public class Release0DayMusicService extends ReleaseSiteService {
 }
 
 class ZeroDayMusicInfo {
-	
+
 	private String nextPage;
 	private boolean processNextPage;
-	
+
 	public String getNextPage() {
 		return nextPage;
 	}
@@ -257,8 +299,8 @@ class ZeroDayMusicInfo {
 	public void setProcessNextPage(boolean processNextPage) {
 		this.processNextPage = processNextPage;
 	}
-	
-	
-	
-	
+
+
+
+
 }

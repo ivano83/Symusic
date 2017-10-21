@@ -33,6 +33,15 @@ public class ReleaseMusicDLService extends ReleaseSiteService {
 	private MusicDLConf conf;
 	private String genre;
 
+	private boolean enableBeatportService;
+	private boolean enableScenelogService;
+	private boolean enableYoutubeService;
+	protected boolean excludeRipRelease;
+	protected boolean excludeVA;
+
+	protected String annoDa;
+	protected String annoAl;
+
 	private static int MAX_CONSECUTIVE_FAILS = 20;
 
 	private List<ReleaseModel> listRelease;

@@ -28,21 +28,18 @@ import org.jsoup.select.Elements;
 
 public abstract class ReleaseSiteService extends BaseService {
 
-	protected boolean enableBeatportService;
-	protected boolean enableScenelogService;
-	protected boolean enableYoutubeService;
-	protected boolean excludeRipRelease;
-	protected boolean excludeVA;
+//	protected boolean enableBeatportService;
+//	protected boolean enableScenelogService;
+//	protected boolean enableYoutubeService;
+//	protected boolean excludeRipRelease;
+//	protected boolean excludeVA;
+//
+//	protected String annoDa;
+//	protected String annoAl;
+//
+//	protected Long idUser;
 
-	protected String annoDa;
-	protected String annoAl;
 
-	protected Long idUser;
-
-	public static enum SearchType {
-		SEARCH_GENRE,
-		SEARCH_CREW;
-	}
 
 	protected List<ReleaseModel> arricchimentoRelease(List<ReleaseModel> releases, SupportObject supp) throws ParseReleaseException {
 
@@ -81,21 +78,7 @@ public abstract class ReleaseSiteService extends BaseService {
 		return new ArrayList<ReleaseModel>(threadObject.getReleaseResults().values());
 	}
 
-	protected boolean isRadioRipRelease(ReleaseModel release) {
-		for(String rip : generalConf.RELEASE_EXCLUSION) {
-			if(release.getNameWithUnderscore().contains(rip))
-				return true;
-		}
-		return false;
-	}
 
-	protected boolean isVARelease(ReleaseModel release) {
-		for(String rip : generalConf.RELEASE_VA) {
-			if(release.getNameWithUnderscore().startsWith(rip))
-				return true;
-		}
-		return false;
-	}
 
 	protected void saveOrUpdateRelease(ReleaseModel release, boolean isRecuperato) throws BackEndException {
 
@@ -109,15 +92,16 @@ public abstract class ReleaseSiteService extends BaseService {
 			ReleaseService relServ = new ReleaseService();
 			ReleaseModel r = relServ.saveRelease(release);
 			release.setId(r.getId());
-			log.info(release+" e' stata salvata sul database con id = "+r.getId());
+			if(!isRecuperato)
+				log.info(release+" e' stata salvata sul database con id = "+r.getId());
 		}
 		else {
 
 		}
-		if(enableYoutubeService) {
+		if(release.getVideos()!=null && !release.getVideos().isEmpty()) {
 			VideoService vidServ = new VideoService();
 			vidServ.saveVideos(release.getVideos(), release.getId());
-		} if(enableScenelogService) {
+		} if(release.getTracks()!=null && !release.getTracks().isEmpty()) {
 			TrackService traServ = new TrackService();
 			traServ.saveTracks(release.getTracks(), release.getId());
 		}
@@ -180,49 +164,6 @@ public abstract class ReleaseSiteService extends BaseService {
 
 	@Override
 	protected abstract String applyFilterSearch(String result);
-
-	public boolean isEnableBeatportService() {
-		return enableBeatportService;
-	}
-
-
-	public void setEnableBeatportService(boolean enableBeatportService) {
-		this.enableBeatportService = enableBeatportService;
-	}
-
-
-	public boolean isExcludeRipRelease() {
-		return excludeRipRelease;
-	}
-
-
-	public void setExcludeRipRelease(boolean excludeRipRelease) {
-		this.excludeRipRelease = excludeRipRelease;
-	}
-
-	public boolean isExcludeVA() {
-		return excludeVA;
-	}
-
-	public void setExcludeVA(boolean excludeVA) {
-		this.excludeVA = excludeVA;
-	}
-
-	public String getAnnoDa() {
-		return annoDa;
-	}
-
-	public void setAnnoDa(String annoDa) {
-		this.annoDa = annoDa;
-	}
-
-	public String getAnnoAl() {
-		return annoAl;
-	}
-
-	public void setAnnoAl(String annoAl) {
-		this.annoAl = annoAl;
-	}
 
 
 }

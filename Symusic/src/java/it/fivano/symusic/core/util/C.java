@@ -14,4 +14,11 @@ public class C {
 	public static String SEARCH_BY_CREW = "Crew";
 	public static String SEARCH_BY_GENRE = "Genre";
 	public static String SEARCH_BY_RELEASE_NAME = "ReleaseName";
+
+	public static enum SearchType {
+		SEARCH_BY_NAME,
+		SEARCH_BY_CREW,
+		SEARCH_BY_GENRE,
+		SEARCH_BY_RELEASE_NAME;
+	}
 }

@@ -1,16 +1,5 @@
 package it.fivano.symusic.action;
 
-import it.fivano.symusic.SymusicUtility;
-import it.fivano.symusic.backend.service.UserService;
-import it.fivano.symusic.core.Release0DayMp3Service;
-import it.fivano.symusic.core.Release0DayMusicService;
-import it.fivano.symusic.core.ReleaseFromPreDbService;
-import it.fivano.symusic.core.ReleaseFromPresceneService;
-import it.fivano.symusic.core.ReleaseMusicDLService;
-import it.fivano.symusic.core.ReleaseSiteService.SearchType;
-import it.fivano.symusic.model.ReleaseModel;
-import it.fivano.symusic.model.UserModel;
-
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
@@ -23,6 +12,17 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import it.fivano.symusic.SymusicUtility;
+import it.fivano.symusic.backend.service.UserService;
+import it.fivano.symusic.core.Release0DayMp3Service;
+import it.fivano.symusic.core.Release0DayMusicService;
+import it.fivano.symusic.core.ReleaseFromPreDbService;
+import it.fivano.symusic.core.ReleaseFromPresceneService;
+import it.fivano.symusic.core.ReleaseMusicDLService;
+import it.fivano.symusic.core.util.C.SearchType;
+import it.fivano.symusic.model.ReleaseModel;
+import it.fivano.symusic.model.UserModel;
 
 /**
  * Servlet implementation class ZeroDayMusicServlet
@@ -96,7 +96,7 @@ public class ZeroDayMusicServlet extends BaseAction {
 			if(reload!=null && reload.length()>0) {
 				listRelease = (List<ReleaseModel>) request.getSession().getAttribute("listRelease");
 			} else {
-
+/*
 				if(site.equals("1")) {
 					Release0DayMusicService zeroDay = new Release0DayMusicService(user.getId());
 					zeroDay.setEnableBeatportService(flagBeatport);
@@ -129,9 +129,9 @@ public class ZeroDayMusicServlet extends BaseAction {
 					musicDL.setAnnoDa(annoDa);
 					musicDL.setAnnoAl(annoAl);
 					if(site.equals("4"))
-						listRelease = musicDL.parsePresceneRelease(genre, initDate, endDate, SearchType.SEARCH_GENRE);
+						listRelease = musicDL.parsePresceneRelease(genre, initDate, endDate, SearchType.SEARCH_BY_GENRE);
 					else
-						listRelease = musicDL.parsePresceneRelease(crew, initDate, endDate, SearchType.SEARCH_CREW);
+						listRelease = musicDL.parsePresceneRelease(crew, initDate, endDate, SearchType.SEARCH_BY_CREW);
 				} else if(site.equals("5")) {
 					ReleaseFromPreDbService musicDL = new ReleaseFromPreDbService(user.getId());
 					musicDL.setEnableBeatportService(flagBeatport);
@@ -139,8 +139,10 @@ public class ZeroDayMusicServlet extends BaseAction {
 					musicDL.setExcludeVA(flagVA);
 					musicDL.setAnnoDa(annoDa);
 					musicDL.setAnnoAl(annoAl);
-					listRelease = musicDL.parsePreDbRelease(crew, initDate, endDate, SearchType.SEARCH_CREW);
+					listRelease = musicDL.parsePreDbRelease(crew, initDate, endDate, SearchType.SEARCH_BY_CREW);
 				}
+
+				*/
 			}
 
 			request.getSession().setAttribute("listRelease", listRelease);

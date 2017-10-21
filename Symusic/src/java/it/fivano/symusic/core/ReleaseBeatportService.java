@@ -29,6 +29,12 @@ import java.util.Map;
 public class ReleaseBeatportService extends ReleaseSiteService {
 
 
+	private boolean enableBeatportService;
+	private boolean enableScenelogService;
+	private boolean enableYoutubeService;
+	protected boolean excludeRipRelease;
+	protected boolean excludeVA;
+
 	private List<ReleaseModel> listRelease;
 
 	public ReleaseBeatportService(Long idUser) throws IOException {

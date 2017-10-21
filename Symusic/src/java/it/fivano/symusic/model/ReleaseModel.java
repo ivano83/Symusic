@@ -23,7 +23,7 @@ public class ReleaseModel {
 	private Integer voteValue;
 	private Double voteAverage;
 	private boolean voted;
-	
+
 	private Map<String,Integer> mappaQualitaDati;
 
 	private List<LinkModel> links;
@@ -104,9 +104,25 @@ public class ReleaseModel {
 			links.add(link);
 	}
 
-	 @Override
+	@Override
 	public String toString() {
 		return this.getName() + ((releaseDate!=null)?" ["+releaseDate+"]":"");
+	}
+
+	public int getDetailsPercent() {
+		int percent = 0;
+		if(releaseDate!=null) percent += 10;
+		if(genre!=null) percent += 10;
+		if(crew!=null) percent += 10;
+		if(artist!=null) percent += 5;
+		if(song!=null) percent += 5;
+		if(links!=null && links.size()==1) percent += 10;
+		if(links!=null && links.size()>1 && links.size()<3) percent += 20;
+		else if(links!=null && links.size()>3 && links.size()<5) percent += 30;
+		else if(links!=null && links.size()>5) percent += 40;
+		if(videos.size()>1) percent += 20;
+
+		return percent;
 	}
 	public List<TrackModel> getTracks() {
 		if(this.tracks==null)
@@ -233,7 +249,7 @@ public class ReleaseModel {
 	public void setMappaQualitaDati(Map<String,Integer> mappaQualitaDati) {
 		this.mappaQualitaDati = mappaQualitaDati;
 	}
-	
+
 	public boolean qualitaDatiMigliore(String nome, Integer rate) {
 		if(mappaQualitaDati.containsKey(nome)) {
 			return rate.intValue() > mappaQualitaDati.get(nome).intValue();

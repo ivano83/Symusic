@@ -1,14 +1,6 @@
 package it.fivano.symusic.core.parser;
 
-import it.fivano.symusic.SymusicUtility;
-import it.fivano.symusic.core.parser.model.BaseReleaseParserModel;
-import it.fivano.symusic.core.util.C;
-import it.fivano.symusic.core.util.UserAgent;
-import it.fivano.symusic.model.GenreModel;
-import it.fivano.symusic.model.LinkModel;
-import it.fivano.symusic.model.ReleaseModel;
-import it.fivano.symusic.model.TrackModel;
-
+import java.net.SocketTimeoutException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +9,17 @@ import java.util.Properties;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.parser.Tag;
 import org.jsoup.select.Elements;
+
+import it.fivano.symusic.SymusicUtility;
+import it.fivano.symusic.conf.SymusicConf;
+import it.fivano.symusic.core.parser.model.BaseReleaseParserModel;
+import it.fivano.symusic.core.util.C;
+import it.fivano.symusic.core.util.UserAgent;
+import it.fivano.symusic.model.GenreModel;
+import it.fivano.symusic.model.LinkModel;
+import it.fivano.symusic.model.ReleaseModel;
+import it.fivano.symusic.model.TrackModel;
 
 public class ReleaseDetailsParser extends BaseParser {
 
@@ -31,6 +32,24 @@ public class ReleaseDetailsParser extends BaseParser {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public boolean searchByName(String name, ReleaseModel release) throws Exception {
+
+		if(props.getProperty("search_byName")!=null) {
+
+			BaseReleaseParserModel searchModel = new BaseReleaseParserModel();
+			String searchUrl = props.getProperty("search_byName").replace("{0}", this.formatSearchValue(name, props.getProperty("search_byName_format")));
+			searchModel.setUrlReleaseDetails(this.risolviUrl(searchUrl, null));
+
+			return releaseDetails(searchModel, release);
+
+		} else {
+			String msg = "La ricerca per 'nome' non è gestita!";
+			log.error(msg);
+			throw new Exception(msg);
+		}
+
 	}
 
 
@@ -48,11 +67,19 @@ public class ReleaseDetailsParser extends BaseParser {
 
 			release = this.popolaRelease(release, searchModel);
 
+			if(searchModel.getUrlReleaseDetails() == null && props.getProperty("search_byName")!=null) {
+
+				String searchUrl = props.getProperty("search_byName").replace("{0}", this.formatSearchValue(searchModel.getReleaseName(), props.getProperty("search_byName_format")));
+				searchModel.setUrlReleaseDetails(this.risolviUrl(searchUrl, null));
+
+			}
+
+
 			if(searchModel.getUrlReleaseDetails()!=null) {
 				// INVOCARE DIRETTAMENTE LA URL ED ESTRARRE I DATI
 				log.info(String.format("[%s] \t connecting to: %s ",site,searchModel.getUrlReleaseDetails()));
 				String userAgent = UserAgent.randomUserAgent();
-				doc = Jsoup.connect(searchModel.getUrlReleaseDetails()).userAgent(userAgent).ignoreHttpErrors(true).get();
+				doc = Jsoup.connect(searchModel.getUrlReleaseDetails()).timeout(TIMEOUT).userAgent(userAgent).ignoreHttpErrors(true).get();
 
 				if(antiDDOS.isAntiDDOS(doc)) {
 					doc = this.bypassAntiDDOS(doc, props.getProperty("base_url"), searchModel.getUrlReleaseDetails(), userAgent);
@@ -64,7 +91,30 @@ public class ReleaseDetailsParser extends BaseParser {
 				throw new Exception(msg);
 			}
 
+			if(props.getProperty("release_fault_page")!=null) {
+				try {
+					Object fault = this.runRole(doc, props.getProperty("release_fault_page"));
+					if(fault!=null && (fault instanceof Elements && !((Elements)fault).isEmpty())) {
+						String msg = String.format("[%s] \t La ricerca non ha prodotto risultati!",site);
+						log.warn(msg);
+						return false;
+					}
+				} catch (IndexOutOfBoundsException e) {
+					// continua... non è una pagina di not found
+				}
+			}
 
+			// artista
+			if(props.getProperty("release_artist")!=null && release.qualitaDatiMigliore(C.ARTIST, quality(C.ARTIST))) {
+				release.setArtist((String)this.runRole(doc, props.getProperty("release_artist")));
+				release.getMappaQualitaDati().put(C.ARTIST, quality(C.ARTIST));
+			}
+
+			// titolo album
+			if(props.getProperty("release_album")!=null && release.qualitaDatiMigliore(C.SONG, quality(C.SONG))) {
+				release.setSong((String)this.runRole(doc, props.getProperty("release_album")));
+				release.getMappaQualitaDati().put(C.SONG, quality(C.SONG));
+			}
 
 			// genere
 			if(props.getProperty("release_genre")!=null && release.qualitaDatiMigliore(C.GENRE, quality(C.GENRE))) {
@@ -92,16 +142,23 @@ public class ReleaseDetailsParser extends BaseParser {
 					text = text.replaceFirst("\\d+\\.",""); // se c'e' il numero di track, lo elimina
 					currTrack.setTrackName(text);
 
+					if(props.getProperty("release_track_duration")!= null) {
+						String duration = (String)this.runRole(track, props.getProperty("release_track_duration"));
+						currTrack.setTime(duration);
+					}
+
+
 					tracksList.add(currTrack);
 					log.info(String.format("[%s] \t TRACK: %s ",site,currTrack));
 					numTr++;
 				}
 
-				release.getMappaQualitaDati().put(C.TRACKS, quality(C.TRACKS));
 
 				if(release.qualitaDatiMigliore(C.TRACKS, quality(C.TRACKS))) {
 					release.setTracks(tracksList);
+					release.getMappaQualitaDati().put(C.TRACKS, quality(C.TRACKS));
 				}
+
 //				else if(release.qualitaDatiMigliore(C.TRACKS, quality(C.TRACKS))) {
 //					// PRIORITA' ALLE TRACCE SCENELOG
 //					release.setTracks(SymusicUtility.chooseTrack(tracksList, release.getTracks(), true));
@@ -137,6 +194,8 @@ public class ReleaseDetailsParser extends BaseParser {
 		}
 		*/
 
+		} catch(SocketTimeoutException e) {
+			log.error("Pagina in timeout. Si prosegue oltre...",e);
 		} catch(Exception e) {
 			throw e;
 		}
@@ -173,12 +232,23 @@ public class ReleaseDetailsParser extends BaseParser {
 	}
 
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
-		Element el = new Element(Tag.valueOf("span"), "");
-		el.append("Ciao");
-		System.out.println(el.text());
-		System.out.println(el.html());
+//		Element el = new Element(Tag.valueOf("span"), "");
+//		el.append("Ciao");
+//		System.out.println(el.text());
+//		System.out.println(el.html());
+
+		Properties props = new SymusicConf().loadProperties("scnlog");
+		ReleaseDetailsParser p = new ReleaseDetailsParser(props);
+
+		ReleaseModel release = new ReleaseModel();
+		release.setNameWithUnderscore("va-urban_dance_22-3cd-flac-2017-voldies");
+
+		p.searchByName(release.getNameWithUnderscore(), release);
+
+		System.out.println(release);
+
 	}
 
 }

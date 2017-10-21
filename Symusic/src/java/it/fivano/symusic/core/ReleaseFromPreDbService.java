@@ -1,28 +1,5 @@
 package it.fivano.symusic.core;
 
-import it.fivano.symusic.SymusicUtility;
-import it.fivano.symusic.backend.service.ReleaseService;
-import it.fivano.symusic.conf.PreDbConf;
-import it.fivano.symusic.conf.PresceneConf;
-import it.fivano.symusic.core.parser.BeatportParser;
-import it.fivano.symusic.core.parser.MusicDLParser;
-import it.fivano.symusic.core.parser.PreDbParser;
-import it.fivano.symusic.core.parser.PresceneParser;
-import it.fivano.symusic.core.parser.SceneDownloadParser;
-import it.fivano.symusic.core.parser.ScenelogParser;
-import it.fivano.symusic.core.parser.YoutubeParser;
-import it.fivano.symusic.core.parser.model.BaseReleaseParserModel;
-import it.fivano.symusic.core.parser.model.BeatportParserModel;
-import it.fivano.symusic.core.parser.model.BaseMusicParserModel;
-import it.fivano.symusic.core.parser.model.ScenelogParserModel;
-import it.fivano.symusic.core.thread.SupportObject;
-import it.fivano.symusic.exception.BackEndException;
-import it.fivano.symusic.exception.ParseReleaseException;
-import it.fivano.symusic.model.ReleaseExtractionModel;
-import it.fivano.symusic.model.ReleaseExtractionModel.AreaExtraction;
-import it.fivano.symusic.model.ReleaseModel;
-import it.fivano.symusic.model.VideoModel;
-
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,18 +8,42 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import it.fivano.symusic.SymusicUtility;
+import it.fivano.symusic.backend.service.ReleaseService;
+import it.fivano.symusic.conf.PreDbConf;
+import it.fivano.symusic.core.parser.BeatportParser;
+import it.fivano.symusic.core.parser.PreDbParser;
+import it.fivano.symusic.core.parser.SceneDownloadParser;
+import it.fivano.symusic.core.parser.ScenelogParser;
+import it.fivano.symusic.core.parser.YoutubeParser;
+import it.fivano.symusic.core.parser.model.BaseReleaseParserModel;
+import it.fivano.symusic.core.parser.model.BeatportParserModel;
+import it.fivano.symusic.core.thread.SupportObject;
+import it.fivano.symusic.core.util.C.SearchType;
+import it.fivano.symusic.exception.BackEndException;
+import it.fivano.symusic.exception.ParseReleaseException;
+import it.fivano.symusic.model.ReleaseExtractionModel;
+import it.fivano.symusic.model.ReleaseExtractionModel.AreaExtraction;
+import it.fivano.symusic.model.ReleaseModel;
+import it.fivano.symusic.model.VideoModel;
+
 public class ReleaseFromPreDbService extends ReleaseSiteService {
 
 	private PreDbConf conf;
 	private String genre;
-
+	protected String annoDa;
+	protected String annoAl;
 	private static int MAX_CONSECUTIVE_FAILS = 20;
 
 	private List<ReleaseModel> listRelease;
 
 	private static int pageGap = 1;
 
-
+	protected boolean enableBeatportService;
+	protected boolean enableScenelogService;
+	protected boolean enableYoutubeService;
+	protected boolean excludeRipRelease;
+	protected boolean excludeVA;
 
 	public ReleaseFromPreDbService(Long idUser) throws IOException {
 		super();
@@ -63,7 +64,7 @@ public class ReleaseFromPreDbService extends ReleaseSiteService {
 		try {
 
 			String param = conf.PARAMS_GENRE;
-			if(searchGenre.equals(SearchType.SEARCH_CREW)) {
+			if(searchGenre.equals(SearchType.SEARCH_BY_CREW)) {
 				param = conf.PARAMS_CREW.replace("{0}", genere)+
 						"&"+conf.PARAMS_GENRE;
 			}
@@ -346,7 +347,7 @@ public class ReleaseFromPreDbService extends ReleaseSiteService {
 		Date a = sdf.parse("20150216");
 
 		ReleaseFromPreDbService s = new ReleaseFromPreDbService(1L);
-		List<ReleaseModel> res = s.parsePreDbRelease("Dance", da, a, SearchType.SEARCH_GENRE);
+		List<ReleaseModel> res = s.parsePreDbRelease("Dance", da, a, SearchType.SEARCH_BY_GENRE);
 //		List<ReleaseModel> res = s.parseMusicDLRelease("trance",da,a);
 		for(ReleaseModel r : res)
 			System.out.println(r);

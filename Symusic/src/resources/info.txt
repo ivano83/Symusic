@@ -1,0 +1,45 @@
+##### REGOLE #####
+||						Separatore delle regole
+h1 > a					Recupera il tag 'a' dentro h1
+get=1					Recupera il primo elemento della lista
+attr=href				Prende l'attributo href del tag corrente
+text()					Prende il testo del tag corrente
+html()					Prende il testo in html del tag corrente
+class=title				Prende il tag avente il class name title
+split=\\|(1)			Fa lo split del testo e recupera la seconda parte (si parte da 0)
+loop=<br />				Crea una lista di elementi usando come delimitatore <br />
+
+
+
+
+
+site					nome del sito (per i log)
+base_url				parte statica della url
+page_gap=				moltiplicatore per il cambio di pagina
+params_page				pezzo di url per il cambio pagina
+params_genre			pezzo di url per la ricerca per genere
+params_crew				pezzo di url per la ricerca per crew
+
+loop_list_item			regola per il recupero della lista degli elementi da caricare
+
+item_release_name		regola per il recupero del nome release
+item_release_date		regola per il recupero della data di rilascio della release
+item_genre				regola per il recupero del genere
+item_url				regola per il recupero della url con la pagina di dettaglio della release
+
+date_format				formato della data di rilascio
+
+search_byGenre			formato url per la ricerca per genere
+search_byReleaseName	formato url per la ricerca per nome release
+search_byName			formato url per la ricerca libera
+search_byName_format	formattazione della query di ricerca libera
+search_byCrew			formato url per la ricerca per crew
+
+release_genre			regola per il recupero del genere
+release_loop_tracks		regola per il recupero della lista delle tracce
+release_track_name		regola per il recupero del nome della traccia corrente
+release_loop_download	regola per il recupero della lista dei link per il download
+
+quality					Bontà dei dati (da 1 a 10) per: Genre, ReleaseDate, Tracks
+
+

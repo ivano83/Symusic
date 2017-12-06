@@ -22,5 +22,7 @@
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/BestUtility"/>
+	<classpathentry kind="lib" path="/SymusicEAR/EarContent/lib/JID3-0.46.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

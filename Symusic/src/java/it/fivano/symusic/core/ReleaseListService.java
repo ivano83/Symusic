@@ -125,32 +125,32 @@ public class ReleaseListService extends ReleaseSiteService {
 						}
 					}
 
-
-					if(!this.verificaAnnoRelease(currRelease,searchInput.getAnnoMin(),searchInput.getAnnoMax())) {
-						log.info(parserModel.getReleaseName()+" ignorata poichè l'anno non è all'interno del range.");
-						continue;
-					}
 				}
 
-				listRelease.add(currRelease);
 
 				// AGGIORNAMENTI DEI DATI SUL DB
 				this.saveOrUpdateRelease(currRelease, isRecuperato);
 
-				google.addManualSearchLink(currRelease);
-				youtube.addManualSearchLink(currRelease); // link a youtube per la ricerca manuale
+				if(!this.verificaAnnoRelease(currRelease,searchInput.getAnnoMin(),searchInput.getAnnoMax())) {
+					log.info(parserModel.getReleaseName()+" ignorata poichè l'anno non è all'interno del range.");
+				} else {
+					listRelease.add(currRelease);
 
-				this.addSimilarRelease(currRelease);
+					google.addManualSearchLink(currRelease);
+					youtube.addManualSearchLink(currRelease); // link a youtube per la ricerca manuale
+
+					this.addSimilarRelease(currRelease);
+				}
 
 				log.info("********* Processate "+count+" release su "+resultList.size()+"*********");
 
 			}
 
 			// INIT OGGETTO DI SUPPORTO UNICO PER TUTTI I THREAD
-			SupportObject supp = new SupportObject();
-			supp.setEnableBeatportService(enableBeatportService);
-			supp.setEnableScenelogService(enableScenelogService);
-			supp.setEnableYoutubeService(enableYoutubeService);
+//			SupportObject supp = new SupportObject();
+//			supp.setEnableBeatportService(enableBeatportService);
+//			supp.setEnableScenelogService(enableScenelogService);
+//			supp.setEnableYoutubeService(enableYoutubeService);
 
 		} catch (Exception e) {
 			throw new ParseReleaseException("Errore nel parsing delle pagine",e);

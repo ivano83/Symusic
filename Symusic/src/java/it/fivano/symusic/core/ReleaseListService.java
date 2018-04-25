@@ -8,7 +8,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang.StringUtils;
+
 import it.fivano.symusic.SymusicUtility;
+import it.fivano.symusic.backend.service.PopularKeyService;
 import it.fivano.symusic.backend.service.ReleaseService;
 import it.fivano.symusic.core.parser.ReleaseDetailsParser;
 import it.fivano.symusic.core.parser.ReleaseListParser;
@@ -20,6 +23,7 @@ import it.fivano.symusic.core.util.SearchInput;
 import it.fivano.symusic.exception.BackEndException;
 import it.fivano.symusic.exception.ParseReleaseException;
 import it.fivano.symusic.model.ReleaseModel;
+import it.fivano.symusic.model.StringKeyModel;
 import it.fivano.symusic.model.VideoModel;
 
 public class ReleaseListService extends ReleaseSiteService {
@@ -49,21 +53,26 @@ public class ReleaseListService extends ReleaseSiteService {
 
 			// fase ricerca titoli release in base ai criteri scelti (genere, crew e range data)
 			Properties currProps = null;
-			List<BaseReleaseParserModel> resultList = null;
+			List<BaseReleaseParserModel> resultList = new ArrayList<BaseReleaseParserModel>();
 			for(String currSite : generalConf.RELEASE_LIST_SITE) {
 				currProps = generalConf.loadProperties(currSite.trim());
 				ReleaseListParser listParser = new ReleaseListParser(currProps);
 
 				if(searchInput.getSearchType().equals(SearchType.SEARCH_BY_CREW)) {
 					resultList = listParser.searchByCrew(searchInput.getDataDa(), searchInput.getDataA(), searchInput.getCrew(), searchInput.isExcludeRadioRip());
-				} else {
+				} else if(searchInput.getSearchType().equals(SearchType.SEARCH_BY_GENRE)){
 					resultList = listParser.searchByGenre(searchInput.getDataDa(), searchInput.getDataA(), searchInput.getGenre(), searchInput.isExcludeRadioRip());
+				} else if(searchInput.getSearchType().equals(SearchType.SEARCH_BY_NAME)){
+					resultList = listParser.searchByName(searchInput.getName(), searchInput.isExcludeRadioRip(), searchInput.getMaxItem());
 				}
 
 				if(!resultList.isEmpty())
 					break;
 			}
 
+
+			PopularKeyService sKeyServ = new PopularKeyService();
+			StringKeyModel stringKeys = sKeyServ.getStringKeys(idUser);
 
 			// fase recupero dettagli della release
 			YoutubeParser youtube = new YoutubeParser();
@@ -126,6 +135,12 @@ public class ReleaseListService extends ReleaseSiteService {
 					}
 
 				}
+
+				int keyLevel = 0;
+				for(String currArtist : currRelease.getSeparateArtist()) {
+					keyLevel += stringKeys.getKeyCount(currArtist);
+				}
+				currRelease.setPopularLevel(keyLevel);
 
 
 				// AGGIORNAMENTI DEI DATI SUL DB
@@ -191,8 +206,6 @@ public class ReleaseListService extends ReleaseSiteService {
 
 
 	}
-
-
 
 
 	private ReleaseModel verificaPresenzaInLista(ReleaseModel release) {

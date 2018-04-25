@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
 <generatorConfiguration >
-<classPathEntry location="C:\Users\ivano\Documents\IVANO\WORK\Symusic\workspace-symusic\SymusicEAR\EarContent\lib\mysql-connector-java-5.1.26-bin.jar" /> 
+<classPathEntry location="C:\Users\ivano\SVILUPPO\GitRepo\SymusicEAR\EarContent\lib\mysql-connector-java-5.1.26-bin.jar" />
   <context id="context1" >
   	<plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin" />
 	<plugin type="org.mybatis.generator.plugins.SerializablePlugin" />
@@ -11,7 +11,7 @@
     </javaModelGenerator>
     <sqlMapGenerator targetPackage="it.fivano.symusic.backend.map" targetProject="Symusic/src/resources" />
     <javaClientGenerator targetPackage="it.fivano.symusic.backend.dao" targetProject="Symusic/src/java" type="XMLMAPPER" />
-    
+
 <!--     <table tableName="genre" schema="symusic"> -->
 <!-- 		<generatedKey column="id_genre" sqlStatement="MySql" identity="true" /> -->
 <!-- 	</table> -->
@@ -29,9 +29,9 @@
 <!-- 	<table tableName="release_track" schema="symusic"> -->
 <!-- 		<generatedKey column="id_release_track" sqlStatement="MySql" identity="true" /> -->
 <!-- 	</table> -->
-	<table tableName="user" schema="symusic">
-		<generatedKey column="id_user" sqlStatement="MySql" identity="true" />
-	</table>
+<!-- 	<table tableName="user" schema="symusic"> -->
+<!-- 		<generatedKey column="id_user" sqlStatement="MySql" identity="true" /> -->
+<!-- 	</table> -->
 <!-- 	<table tableName="user_genre_preference" schema="symusic"> -->
 <!-- 	</table> -->
 <!-- 	<table tableName="user_preference" schema="symusic"> -->
@@ -39,7 +39,9 @@
 <!-- 	</table> -->
 <!-- 	<table tableName="release_extraction" schema="symusic" catalog="symusic" ></table> -->
 <!-- 	<table tableName="release_user_option" schema="symusic" catalog="symusic" ></table> -->
-		
+	<table tableName="popular_key" schema="symusic">
+		<generatedKey column="id_popular_key" sqlStatement="MySql" identity="true" />
+	</table>
 
   </context>
 </generatorConfiguration>

@@ -504,6 +504,86 @@
 
 <div style="padding-bottom: 60px"></div>
 
+<form action="MassiveReleaseServlet">
+	<h3>Ricerca libera</h3>
+	<input type="hidden" name="crewOrGenre"  value="name" >
+	<table>
+		<tr>
+			<td>
+				<div>Cerca </div>
+			</td>
+			<td>
+				<span><input type="text" name="searchValue" value="" size="40" /> </span>
+			</td>
+			<td>
+				<span>Item:
+				<select id="searchMaxItem" name="searchMaxItem" >
+					<option value=" " selected="selected"> </option>
+					<option value="1" >1</option>
+					<option value="10" >10</option>
+					<option value="50" >50</option>
+					<option value="100" >100</option>
+					<option value="200" >200</option>
+					<option value="300" >300</option>
+				</select> </span>
+			</td>
+
+		</tr>
+		<tr>
+			<td>
+				<div>Ignora Release Radio/Sat RIP</div>
+			</td>
+			<td colspan="2">
+				<input type="checkbox" name="excludeRelaseRip" value="true" checked="checked" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div>Ignora Release Various Artist (VA)</div>
+			</td>
+			<td colspan="2">
+				<input type="checkbox" name="excludeVA" value="true" checked="checked" />
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<div>Range Data</div>
+			</td>
+			<td colspan="2">
+				<fmt:formatDate value="${date}" pattern="yyyy" var="currentYear" />
+				Dal <select id="annoDa" name="annoDa" onchange="javascript:checkDataRange();">
+				<c:forEach items="${listaAnni}" var="anno" varStatus="status">
+					<c:choose>
+						<c:when test="${status.index==1}">
+							<option value="${anno}" selected="selected">${anno}</option>
+						</c:when>
+						<c:otherwise>
+							<option value="${anno}">${anno}</option>
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+				</select>
+				Al <select id="annoAl" name="annoAl" onchange="javascript:checkDataRange();">
+				<c:forEach items="${listaAnni}" var="anno">
+					<c:choose>
+						<c:when test="${anno==currentYear}">
+							<option value="${anno}" selected="selected">${anno}</option>
+						</c:when>
+						<c:otherwise>
+							<option value="${anno}">${anno}</option>
+						</c:otherwise>
+					</c:choose>
+				</c:forEach>
+				</select>
+			</td>
+		</tr>
+	</table>
+	<input type="submit" value="Ricerca">
+
+</form>
+
+<div style="padding-bottom: 60px"></div>
+
 <form action="LocalReleaseServlet">
 	<h3>Ricerca Release Salvate</h3>
 	<table>
@@ -516,7 +596,15 @@
 					<option value="ALL" selected="selected">[ALL]</option>
 					<option value="dance">Dance</option>
 					<option value="trance">Trance</option>
+					<option value="techno">Techno</option>
 					<option value="house">House</option>
+				</select>
+				&nbsp;
+				<select id="crewSelect2" name="crew">
+					<option value="ALL" selected="selected">[ALL]</option>
+					<c:forEach items="${crewList}" var="cr">
+        				<option value="${cr}">${cr}</option>
+    			  	</c:forEach>
 				</select>
 			</td>
 		</tr>
@@ -542,6 +630,7 @@
 </form>
 
 
-<div style="padding-bottom: 100px"></div>
+
+<div style="padding-bottom: 300px"></div>
 </body>
 </html>

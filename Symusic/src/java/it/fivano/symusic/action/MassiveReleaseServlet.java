@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -12,6 +13,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
 
 import it.fivano.symusic.SymusicUtility;
 import it.fivano.symusic.backend.service.UserService;
@@ -22,6 +25,7 @@ import it.fivano.symusic.core.ReleaseFromPresceneService;
 import it.fivano.symusic.core.ReleaseListService;
 import it.fivano.symusic.core.ReleaseMusicDLService;
 import it.fivano.symusic.core.util.C.SearchType;
+import it.fivano.symusic.core.util.ReleaseModelComparator;
 import it.fivano.symusic.core.util.SearchInput;
 import it.fivano.symusic.model.ReleaseModel;
 import it.fivano.symusic.model.UserModel;
@@ -63,6 +67,8 @@ public class MassiveReleaseServlet extends BaseAction {
 			String choose = request.getParameter("crewOrGenre");
 			String genre = request.getParameter("genre");
 			String crew = request.getParameter("crew");
+			String searchName = request.getParameter("searchValue");
+			String searchNameMaxItem = request.getParameter("searchMaxItem");
 			Date initDate = null;
 			Date endDate = null;
 
@@ -102,10 +108,13 @@ public class MassiveReleaseServlet extends BaseAction {
 				SearchInput in = new SearchInput();
 				if("genre".equals(choose))
 					in.setSearchType(SearchType.SEARCH_BY_GENRE);
+				else if("name".equals(choose))
+					in.setSearchType(SearchType.SEARCH_BY_NAME);
 				else
 					in.setSearchType(SearchType.SEARCH_BY_CREW);
 				in.setCrew(crew);
 				in.setGenre(genre);
+				in.setName(searchName);
 				in.setDataDa(initDate);
 				in.setDataA(endDate);
 				in.setExcludeRadioRip(flagRip);
@@ -113,8 +122,14 @@ public class MassiveReleaseServlet extends BaseAction {
 				in.setAnnoMin(annoDa);
 				in.setAnnoMax(annoAl);
 
+				if(!StringUtils.isEmpty(searchNameMaxItem)) {
+					in.setMaxItem(Integer.parseInt(searchNameMaxItem));
+				}
+
 				ReleaseListService relService = new ReleaseListService(user.getId());
 				listRelease = relService.loadReleaseList(in);
+
+				Collections.sort(listRelease, new ReleaseModelComparator());
 			}
 
 			request.getSession().setAttribute("listRelease", listRelease);

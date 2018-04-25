@@ -17,6 +17,7 @@ public class SearchInput {
 	private SearchType searchType;
 	private int annoMin;
 	private int annoMax;
+	private int maxItem;
 
 	public Date getDataDa() {
 		return dataDa;
@@ -77,6 +78,12 @@ public class SearchInput {
 	}
 	public void setAnnoMax(int annoMax) {
 		this.annoMax = annoMax;
+	}
+	public int getMaxItem() {
+		return maxItem == 0 ? 50 : maxItem;
+	}
+	public void setMaxItem(int maxItem) {
+		this.maxItem = maxItem;
 	}
 
 }

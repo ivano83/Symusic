@@ -67,13 +67,14 @@ public class ReleaseListParser extends BaseParser {
 
 	}
 
-	public List<BaseReleaseParserModel> searchByName(String name, boolean excludeRadioRip) throws Exception {
+	public List<BaseReleaseParserModel> searchByName(String name, boolean excludeRadioRip, int maxItem) throws Exception {
 
 		searchInput = new SearchInput();
 		searchInput.setGenre("");
 		searchInput.setName(this.applyFilterSearch(name));
 		searchInput.setExcludeRadioRip(excludeRadioRip);
 		searchInput.setSearchType(SearchType.SEARCH_BY_NAME);
+		searchInput.setMaxItem(maxItem);
 
 		return search();
 
@@ -98,11 +99,12 @@ public class ReleaseListParser extends BaseParser {
 
 		int pageGap = props.getProperty("page_gap")!=null ? Integer.parseInt(props.getProperty("page_gap")) : 1;
 		int pagina = props.getProperty("page_start")!=null ? Integer.parseInt(props.getProperty("page_start")) : 1;
-
+		boolean isSearchByName = false;
 		String urlPage = null;
 		String urlPattern = null;
 		if(SearchType.SEARCH_BY_NAME.equals(searchInput.getSearchType()) && props.getProperty("search_byName")!=null) {
 			urlPattern = props.getProperty("search_byName").replace("{0}", searchInput.getName());
+			isSearchByName = true;
 		} else if(SearchType.SEARCH_BY_CREW.equals(searchInput.getSearchType()) && props.getProperty("search_byCrew")!=null) {
 			urlPattern = props.getProperty("search_byCrew").replace("{0}", searchInput.getCrew());
 		} else if(SearchType.SEARCH_BY_GENRE.equals(searchInput.getSearchType()) && props.getProperty("search_byGenre")!=null) {
@@ -118,6 +120,9 @@ public class ReleaseListParser extends BaseParser {
 
 		while(parseFullPage(listaRelease, urlPage)) {
 			pagina++;
+
+			if(isSearchByName && pagina>10)
+				break; // basta cercare ulteriori pagine
 
 			urlPage = this.risolviUrl(urlPattern, (pageGap*pagina)+"");
 
@@ -152,6 +157,8 @@ public class ReleaseListParser extends BaseParser {
 				doc = Jsoup.connect(urlPage).timeout(TIMEOUT).userAgent(userAgent).ignoreHttpErrors(true).get();
 			}
 
+			boolean isSearchByName = SearchType.SEARCH_BY_NAME.toString().equals(searchInput.getSearchType().toString());
+
 //			Elements releaseGroup = doc.getElementsByClass(props.getProperty("loop_list_item"));
 			Elements releaseGroup = (Elements)this.runRole(doc,props.getProperty("loop_list_item"));
 			if(releaseGroup.size()>0) {
@@ -162,7 +169,10 @@ public class ReleaseListParser extends BaseParser {
 					release = this.popolaDatiRelease(tmp);
 
 
-					if(searchInput.getDataDa()!=null && searchInput.getDataDa().after(release.getReleaseDate()))
+					if(isSearchByName) {
+						if(listaRelease.size()>=searchInput.getMaxItem())
+							continuaPaginaSuccessiva = false; // superato il max item richiesto
+					} else if(searchInput.getDataDa()!=null && searchInput.getDataDa().after(release.getReleaseDate()))
 						continuaPaginaSuccessiva = false; // superato il range richiesto
 
 					if((searchInput.isExcludeRadioRip() && release.isRadioRip()) || !continuaPaginaSuccessiva) {
@@ -175,7 +185,7 @@ public class ReleaseListParser extends BaseParser {
 
 				}
 
-				if(searchInput.getDataDa()==null && searchInput.getDataA()==null)
+				if(!isSearchByName && searchInput.getDataDa()==null && searchInput.getDataA()==null)
 					continuaPaginaSuccessiva = false; // date non specificate: basta la prima pagina
 
 			} else {
@@ -223,6 +233,8 @@ public class ReleaseListParser extends BaseParser {
 		// RANGE DATA, SOLO LE RELEASE COMPRESE DA - A
 		if(searchInput.getDataDa()!=null && searchInput.getDataA()!=null) {
 			release.setDateInRange(this.isInRange(dateInDate, searchInput.getDataDa(), searchInput.getDataA()));
+		} else {
+			release.setDateInRange(true);
 		}
 
 		// CONTROLLA SE E' UN RADIO/SAT RIP

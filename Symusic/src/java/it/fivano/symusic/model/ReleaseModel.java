@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
+
 public class ReleaseModel {
 
 	private Long id;
@@ -31,6 +34,8 @@ public class ReleaseModel {
 	private List<VideoModel> videos;
 
 	private List<String> similarRelease;
+
+	private int popularLevel;
 
 	public ReleaseModel() {
 		voteAverage = 0.;
@@ -255,6 +260,31 @@ public class ReleaseModel {
 			return rate.intValue() > mappaQualitaDati.get(nome).intValue();
 		}
 		return true;
+	}
+
+	public List<String> getSeparateArtist() {
+		List<String> res = new ArrayList<String>();
+		if(artist!=null) {
+			String s = artist.toLowerCase()
+					.replace(",", "|").replace(" feat ", "|").replace(" feat. ", "|").replace(" ft ", "|").replace(" ft. ", "|").replace(" featuring ", "|")
+					.replace(" presents ", "|").replace(" pres ", "|").replace(" pres. ", "|").replace(" with ", "|").replace(" vs ", "|").replace(" vs. ", "|")
+					.replace("  ", " ").replace(" and ", "|").trim();
+
+			for(String currArtist : s.split("\\|"))
+				res.add(WordUtils.capitalizeFully(currArtist.trim()));
+		}
+
+		return res;
+	}
+
+
+	public int getPopularLevel() {
+		return popularLevel;
+	}
+
+
+	public void setPopularLevel(int popularLevel) {
+		this.popularLevel = popularLevel;
 	}
 
 }

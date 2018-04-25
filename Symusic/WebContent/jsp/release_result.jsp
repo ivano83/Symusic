@@ -27,6 +27,13 @@
      });
 
 	}
+
+	function stringKey(sKey) {
+		 $.get('StringKeyServlet',{key:sKey},function(responseText) {
+
+    });
+
+	}
 	function releaseOption(idRel,option,optionName,color) {
 			 $.get('FlagReleaseServlet',{idRelease:idRel,optionType:option,optionName:optionName,color:color},function(responseText) {
 			if(option==2) {
@@ -58,7 +65,10 @@
 				  <c:when test="${empty item.links}"><div class="rel_name" style="background-color:#ffff77">${item.nameWithUnderscore}</div></c:when>
 				  <c:otherwise><div class="rel_name">${item.nameWithUnderscore}</div></c:otherwise>
 				</c:choose>
-				<div>Artista: <span class="artist_${item.id}">${item.artist}</span></div>
+				<div>Artista:
+				<c:forEach items="${item.separateArtist}" var="art">
+							<span class="artist_${item.id}">${art} <a name="artist_${item.id}" class="string_key" href="#row_${item.id}" onclick="javascript:stringKey('${art}')"><img class="stringkey_img" width="15" height="15" src="./img/plus_icon.png" alt="Aggiungi preferenza artista" title="Aggiungi ${art} alle preferenze" /></a> &nbsp;</span>
+				</c:forEach></div>
 				<div>Titolo release: <span class="title_${item.id}">${item.song}</span></div>
 				<div class="rating" data-average="${item.voteAverage}" data-id="${item.id}" data-value="${item.voteValue}" disable="${item.voted}"></div>
 				<span class="voted voted_${item.id}">${item.voteAverage}/5

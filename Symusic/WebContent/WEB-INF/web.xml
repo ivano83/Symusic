@@ -68,6 +68,12 @@
 		<servlet-class>it.fivano.symusic.action.MassiveReleaseServlet</servlet-class>
 	</servlet>
 	
+	<servlet>
+		<display-name>StringKeyServlet</display-name>
+		<servlet-name>StringKeyServlet</servlet-name>
+		<servlet-class>it.fivano.symusic.action.StringKeyServlet</servlet-class>
+	</servlet>
+	
 	<servlet-mapping>
 		<servlet-name>InitServlet</servlet-name>
 		<url-pattern>/InitServlet</url-pattern>
@@ -115,6 +121,10 @@
 	<servlet-mapping>
 		<servlet-name>MassiveReleaseServlet</servlet-name>
 		<url-pattern>/MassiveReleaseServlet</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>StringKeyServlet</servlet-name>
+		<url-pattern>/StringKeyServlet</url-pattern>
 	</servlet-mapping>
 
 	<welcome-file-list>

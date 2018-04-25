@@ -109,6 +109,15 @@
 	position:relative;
 }
 
+.stringkey_img {
+	background-image: url("../img/plus_icon.png");
+}
+
+.stringkey_img:hover {
+	background-image: url("../img/plus_icon_2.png");
+	background-color: #F0F0F0;
+}
+
 /** CALENDARIO */
 
 /* input box in default state */

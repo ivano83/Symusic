@@ -10,6 +10,7 @@ import it.fivano.symusic.model.LinkModel;
 import it.fivano.symusic.model.ReleaseExtractionModel;
 import it.fivano.symusic.model.ReleaseFlagModel;
 import it.fivano.symusic.model.ReleaseModel;
+import it.fivano.symusic.model.StringKeyModel;
 import it.fivano.symusic.model.TrackModel;
 import it.fivano.symusic.model.VideoModel;
 
@@ -17,6 +18,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -112,10 +114,10 @@ public class ReleaseService extends RootService {
 
 	}
 
-	public List<ReleaseModel> getListRelease(String genre, Date initDate, Date endDate, Long idUser) throws BackEndException {
+	public List<ReleaseModel> getListRelease(String genre, String crew, Date initDate, Date endDate, Long idUser) throws BackEndException {
 
 		List<ReleaseModel> result = new ArrayList<ReleaseModel>();
-		Set<String> resTmp = new HashSet<String>();
+		Set<String> resTmp = new LinkedHashSet<String>();
 		try {
 
 			ReleaseMapper releaseDao = this.getReleaseMapper();
@@ -124,6 +126,9 @@ public class ReleaseService extends RootService {
 			ReleaseExample.Criteria cr = input.createCriteria();
 			if(genre!=null) {
 				cr.andIdGenreEqualTo(new GenreService().getGenreByName(genre).getId());
+			}
+			if(crew!=null) {
+				cr.andCrewEqualTo(crew);
 			}
 			cr.andReleaseDateBetween(initDate, endDate);
 			input.setOrderByClause("release_date asc");
@@ -141,8 +146,19 @@ public class ReleaseService extends RootService {
 			this.chiudiSessione();
 		}
 
+
+		PopularKeyService sKeyServ = new PopularKeyService();
+		StringKeyModel stringKeys = sKeyServ.getStringKeys(idUser);
+
 		for(String releaseName : resTmp) {
-			result.add(this.getReleaseFull(releaseName, idUser));
+			ReleaseModel currRelease = this.getReleaseFull(releaseName, idUser);
+			int keyLevel = 0;
+			for(String currArtist : currRelease.getSeparateArtist()) {
+				keyLevel += stringKeys.getKeyCount(currArtist);
+			}
+			currRelease.setPopularLevel(keyLevel);
+
+			result.add(currRelease);
 		}
 
 		return result;
@@ -233,6 +249,16 @@ public class ReleaseService extends RootService {
 					GenreModel genere = new GenreService().getGenre(res.get(0).getIdGenre());
 					relRes.setGenre(genere);
 				}
+
+
+				PopularKeyService sKeyServ = new PopularKeyService();
+				StringKeyModel stringKeys = sKeyServ.getStringKeys(idUser);
+				int keyLevel = 0;
+				for(String currArtist : relRes.getSeparateArtist()) {
+					keyLevel += stringKeys.getKeyCount(currArtist);
+				}
+				relRes.setPopularLevel(keyLevel);
+
 
 				ReleaseExtractionModel extr = new ReleaseExtractionService().getReleaseExtraction(idRel);
 				relRes.setReleaseExtraction(extr);

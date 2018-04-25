@@ -3,6 +3,7 @@
 	<name>SymusicEAR</name>
 	<comment></comment>
 	<projects>
+		<project>BestUtility</project>
 		<project>Symusic</project>
 	</projects>
 	<buildSpec>

@@ -197,7 +197,8 @@ public class ReleaseDetailsParser extends BaseParser {
 		} catch(SocketTimeoutException e) {
 			log.error("Pagina in timeout. Si prosegue oltre...",e);
 		} catch(Exception e) {
-			throw e;
+			log.error("Errore nel parsing della pagina... "+e.getMessage());
+//			throw e;
 		}
 
 		return true;

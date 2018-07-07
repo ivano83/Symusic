@@ -148,6 +148,14 @@
 				<input type="checkbox" name="reload" value="true" />
 			</td>
 		</tr>
+		<tr>
+			<td>
+				<div>Solo release con rank</div>
+			</td>
+			<td>
+				<input type="checkbox" name="onlyPopularLevel" value="true" />
+			</td>
+		</tr>
 	</table>
 	<input type="submit" value="Ricerca">
 

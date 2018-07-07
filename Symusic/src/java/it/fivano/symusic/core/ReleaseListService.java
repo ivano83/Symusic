@@ -97,6 +97,7 @@ public class ReleaseListService extends ReleaseSiteService {
 					continue;
 				}
 
+
 				// CONTROLLA SE LA RELEASE E' GIA' PRESENTE
 				boolean isRecuperato = false;
 				ReleaseService relServ = new ReleaseService();
@@ -142,12 +143,13 @@ public class ReleaseListService extends ReleaseSiteService {
 				}
 				currRelease.setPopularLevel(keyLevel);
 
-
 				// AGGIORNAMENTI DEI DATI SUL DB
 				this.saveOrUpdateRelease(currRelease, isRecuperato);
 
 				if(!this.verificaAnnoRelease(currRelease,searchInput.getAnnoMin(),searchInput.getAnnoMax())) {
 					log.info(parserModel.getReleaseName()+" ignorata poichè l'anno non è all'interno del range.");
+				} else if(searchInput.isOnlyPopularLevel() && keyLevel == 0) {
+					log.info(parserModel.getReleaseName()+" ignorata poichè il popularLevel è 0");
 				} else {
 					listRelease.add(currRelease);
 

@@ -82,9 +82,11 @@ public class MassiveReleaseServlet extends BaseAction {
 			String enableBeatport = request.getParameter("enableBeatport");
 			String excludeReleaseRip = request.getParameter("excludeRelaseRip");
 			String excludeReleaseVA = request.getParameter("excludeVA");
+			String onlyPopularLevel = request.getParameter("onlyPopularLevel");
 			boolean flagBeatport = (enableBeatport!=null && enableBeatport.equalsIgnoreCase("true"))?true:false;
 			boolean flagRip = (excludeReleaseRip!=null && excludeReleaseRip.equalsIgnoreCase("true"))?true:false;
 			boolean flagVA = (excludeReleaseVA!=null && excludeReleaseVA.equalsIgnoreCase("true"))?true:false;
+			boolean flagOnlyPopularLevel = (onlyPopularLevel!=null && onlyPopularLevel.equalsIgnoreCase("true"))?true:false;
 
 			// se non presente le date sono inizializzate alla data corrente
 			initDate = (iDate==null || iDate.isEmpty())? sdf.parse(sdf.format(new Date())) : sdf.parse(iDate);
@@ -119,6 +121,7 @@ public class MassiveReleaseServlet extends BaseAction {
 				in.setDataA(endDate);
 				in.setExcludeRadioRip(flagRip);
 				in.setExcludeVa(flagVA);
+				in.setOnlyPopularLevel(flagOnlyPopularLevel);
 				in.setAnnoMin(annoDa);
 				in.setAnnoMax(annoAl);
 

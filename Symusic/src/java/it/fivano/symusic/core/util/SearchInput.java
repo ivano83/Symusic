@@ -14,6 +14,7 @@ public class SearchInput {
 	private String name;
 	private boolean excludeRadioRip;
 	private boolean excludeVa;
+	private boolean onlyPopularLevel;
 	private SearchType searchType;
 	private int annoMin;
 	private int annoMax;
@@ -84,6 +85,12 @@ public class SearchInput {
 	}
 	public void setMaxItem(int maxItem) {
 		this.maxItem = maxItem;
+	}
+	public boolean isOnlyPopularLevel() {
+		return onlyPopularLevel;
+	}
+	public void setOnlyPopularLevel(boolean onlyPopularLevel) {
+		this.onlyPopularLevel = onlyPopularLevel;
 	}
 
 }

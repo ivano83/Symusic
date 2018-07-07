@@ -109,6 +109,8 @@
 					</c:otherwise>
 				</c:choose>
 				<c:if test="${item.releaseFlag.newRelease}"><span class="new_icon"><img alt="NEW RELEASE" src="img/new.jpg"  width="40px" /></span></c:if>
+				<div>Livello release preferita: <span class="prefLevel_${item.id}">${item.popularLevel}</span></div>
+
 			</td>
 			<td>
 

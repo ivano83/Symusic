@@ -526,9 +526,8 @@
 			<td>
 				<span>Item:
 				<select id="searchMaxItem" name="searchMaxItem" >
-					<option value=" " selected="selected"> </option>
 					<option value="1" >1</option>
-					<option value="10" >10</option>
+					<option value="10" selected="selected">10</option>
 					<option value="50" >50</option>
 					<option value="100" >100</option>
 					<option value="200" >200</option>

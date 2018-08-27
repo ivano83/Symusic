@@ -166,7 +166,8 @@ public class BaseParser {
 
 //		String url = this.getBypassUrlOld(doc,baseUrl);
 //		log.info(doc.text());
-		String url = antiDDOS.cloudFlareSolve(doc.html(), baseUrl, userAgent);
+		//String url = antiDDOS.cloudFlareSolve(doc.html(), baseUrl, userAgent);
+		String url = antiDDOS.cloudFlareSolve2018(doc.html(), baseUrl, userAgent);
 
 //		String userAgent = this.randomUserAgent();
 //		log.info(url);

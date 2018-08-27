@@ -98,7 +98,7 @@ public abstract class BaseService {
 		String jschl_vc = doc.getElementsByAttributeValue("name", "jschl_vc").get(0).attr("value");
 //		System.out.println(jschl_vc);
 		Elements scriptElements = doc.getElementsByTag("script");
-		Integer numberCalcLine = null;
+		Long numberCalcLine = null;
 		for (Element element :scriptElements ){
 			for (DataNode node : element.dataNodes()) {
 				String text = node.getWholeData();
@@ -120,7 +120,7 @@ public abstract class BaseService {
 //			System.out.println(numberCalcLine);
 		}
 
-		int jschl_answer = 0;
+		long jschl_answer = 0;
 		if(numberCalcLine!=null) {
 
 			jschl_answer = numberCalcLine;

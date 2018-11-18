@@ -58,6 +58,7 @@
 					<option value="trance">Trance</option>
 					<option value="house">House</option>
 					<option value="techno">Techno</option>
+					<option value="electronic">Electronic</option>
 				</select>
 				<select id="crewSelect" name="crew">
 					<c:forEach items="${crewList}" var="cr">

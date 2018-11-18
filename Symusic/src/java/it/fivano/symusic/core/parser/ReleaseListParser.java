@@ -152,9 +152,15 @@ public class ReleaseListParser extends BaseParser {
 			if(antiDDOS.isAntiDDOS(doc)) {
 				doc = this.bypassAntiDDOS(doc, baseUrl, urlPage, userAgent);
 			}
-			else if(doc.text().contains("wait 4 seconds then reload page") || doc.text().contains(" preparing http")) {
-				Thread.sleep(4100);
-				doc = Jsoup.connect(urlPage).timeout(TIMEOUT).userAgent(userAgent).ignoreHttpErrors(true).get();
+			else {
+				int tent = 0;
+				while(tent < 5 &&
+						(doc.text().contains("wait 4 seconds then reload page") || doc.text().contains(" preparing http") || doc.text().contains("you click too fast"))) {
+					log.info("Protezione bot attivo: tentativo n. "+tent);
+					Thread.sleep(4100+(500*tent));
+					doc = Jsoup.connect(urlPage).timeout(TIMEOUT).userAgent(userAgent).ignoreHttpErrors(true).get();
+					tent++;
+				}
 			}
 
 			boolean isSearchByName = SearchType.SEARCH_BY_NAME.toString().equals(searchInput.getSearchType().toString());

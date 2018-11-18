@@ -268,7 +268,7 @@ public class ReleaseModel {
 			String s = artist.toLowerCase()
 					.replace(",", "|").replace(" feat ", "|").replace(" feat. ", "|").replace(" ft ", "|").replace(" ft. ", "|").replace(" featuring ", "|")
 					.replace(" presents ", "|").replace(" pres ", "|").replace(" pres. ", "|").replace(" with ", "|").replace(" vs ", "|").replace(" vs. ", "|")
-					.replace("  ", " ").replace(" and ", "|").trim();
+					.replace("  ", " ").replace(" and ", "|").replace(" X ", "|").trim();
 
 			for(String currArtist : s.split("\\|"))
 				res.add(WordUtils.capitalizeFully(currArtist.trim()));
